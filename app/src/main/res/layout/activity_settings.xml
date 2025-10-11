@@ -19,9 +19,8 @@
             android:padding="@dimen/small_padding"
             android:layout_marginEnd="@dimen/small_padding"
             android:scaleType="center"
-            android:background="?attr/colorPrimary"
             android:src="@drawable/ic_arrow_back_24"
-            app:iconTint="?attr/colorOnSecondary"
+            app:tint="?attr/colorOnSecondary"
             android:contentDescription="@string/back" />
 
         <TextView
