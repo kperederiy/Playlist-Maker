@@ -5,4 +5,5 @@
     <color name="black_full">#000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="gray">#AEAFB4</color>
+    <color name="light_gray">#E6E8EB</color>
 </resources>
