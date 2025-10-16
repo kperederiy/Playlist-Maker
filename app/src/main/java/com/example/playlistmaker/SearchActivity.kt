@@ -11,6 +11,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.getSystemService
 
 class SearchActivity : AppCompatActivity() {
+
+    val inputSearchText = findViewById<EditText>(R.id.inputSearchText)
+    val btnClearSearch = findViewById<ImageView>(R.id.btnClearSearch)
+    var currentText: String = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
@@ -20,20 +25,16 @@ class SearchActivity : AppCompatActivity() {
             finish()
         }
 
-        val inputSearchText = findViewById<EditText>(R.id.inputSearchText)
-        val btnClearSearch = findViewById<ImageView>(R.id.btnClearSearch)
-
         inputSearchText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                // можно добавить логику перед изменением текста
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 btnClearSearch.visibility = if (!s.isNullOrEmpty()) View.VISIBLE else View.GONE
+                currentText = s.toString()
             }
 
             override fun afterTextChanged(s: Editable?) {
-                // сюда можно добавить, например, debounce или фильтрацию
             }
         })
 
@@ -45,5 +46,15 @@ class SearchActivity : AppCompatActivity() {
             val imm = getSystemService<InputMethodManager>()
             imm?.hideSoftInputFromWindow(inputSearchText.windowToken, 0)
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("search_text", currentText)
+    }
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        val restoredText = savedInstanceState.getString("search_text", "")
+        inputSearchText.setText(restoredText)
     }
 }
