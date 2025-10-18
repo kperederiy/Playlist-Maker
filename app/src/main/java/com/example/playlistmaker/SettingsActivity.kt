@@ -50,7 +50,7 @@ class SettingsActivity : AppCompatActivity() {
                 data = Uri.parse("mailto:")
                 putExtra(
                     Intent.EXTRA_EMAIL,
-                    getString(R.string.email)
+                    arrayOf(getString(R.string.email))
                 )
                 putExtra(
                     Intent.EXTRA_SUBJECT,
