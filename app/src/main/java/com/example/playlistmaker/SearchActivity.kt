@@ -12,13 +12,16 @@ import androidx.core.content.getSystemService
 
 class SearchActivity : AppCompatActivity() {
 
-    val inputSearchText = findViewById<EditText>(R.id.inputSearchText)
-    val btnClearSearch = findViewById<ImageView>(R.id.btnClearSearch)
-    var currentText: String = ""
+    private lateinit var inputSearchText: EditText
+    private lateinit var btnClearSearch: ImageView
+    private var currentText: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
+
+        inputSearchText = findViewById(R.id.inputSearchText)
+        btnClearSearch = findViewById(R.id.btnClearSearch)
 
         val buttonBack = findViewById<ImageView>(R.id.back)
         buttonBack.setOnClickListener {
