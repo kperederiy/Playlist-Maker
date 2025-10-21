@@ -3,11 +3,11 @@ package com.example.playlistmaker
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.widget.ImageView
-import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.switchmaterial.SwitchMaterial
+import com.google.android.material.textview.MaterialTextView
 
 class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -15,9 +15,9 @@ class SettingsActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_settings)
 
-        val buttonBack = findViewById<ImageView>(R.id.back)
-        buttonBack.setOnClickListener {
-            finish()
+        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
+        toolbar.setNavigationOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
         }
 
         val themeSwitch = findViewById<SwitchMaterial>(R.id.themeSwitch)
@@ -30,7 +30,7 @@ class SettingsActivity : AppCompatActivity() {
             }
         }
 
-        val buttonShare = findViewById<LinearLayout>(R.id.share)
+        val buttonShare = findViewById<MaterialTextView>(R.id.share)
         buttonShare.setOnClickListener {
             val shareIntent = Intent().apply {
                 action = Intent.ACTION_SEND
@@ -44,7 +44,7 @@ class SettingsActivity : AppCompatActivity() {
             startActivity(chooser)
         }
 
-        val buttonSupport = findViewById<LinearLayout>(R.id.support)
+        val buttonSupport = findViewById<MaterialTextView>(R.id.support)
         buttonSupport.setOnClickListener {
             val intent = Intent(Intent.ACTION_SENDTO).apply {
                 data = Uri.parse("mailto:")
@@ -65,7 +65,7 @@ class SettingsActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        val buttonUserAgreement = findViewById<LinearLayout>(R.id.user_agreement)
+        val buttonUserAgreement = findViewById<MaterialTextView>(R.id.user_agreement)
         buttonUserAgreement.setOnClickListener {
             val intent =
                 Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.user_agreement_url)))

@@ -9,6 +9,8 @@ import android.widget.EditText
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.getSystemService
+import androidx.core.view.isVisible
+import com.google.android.material.appbar.MaterialToolbar
 
 class SearchActivity : AppCompatActivity() {
 
@@ -23,9 +25,9 @@ class SearchActivity : AppCompatActivity() {
         inputSearchText = findViewById(R.id.inputSearchText)
         btnClearSearch = findViewById(R.id.btnClearSearch)
 
-        val buttonBack = findViewById<ImageView>(R.id.back)
-        buttonBack.setOnClickListener {
-            finish()
+        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
+        toolbar.setNavigationOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
         }
 
         inputSearchText.addTextChangedListener(object : TextWatcher {
@@ -33,7 +35,7 @@ class SearchActivity : AppCompatActivity() {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                btnClearSearch.visibility = if (!s.isNullOrEmpty()) View.VISIBLE else View.GONE
+                btnClearSearch.isVisible = !s.isNullOrEmpty()
                 currentText = s.toString()
             }
 
