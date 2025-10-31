@@ -20,7 +20,7 @@
             android:layout_marginBottom="8dp"
             android:contentDescription="@string/cover"
             android:scaleType="centerCrop"
-            android:src="@drawable/placeholder" />
+            tools:src="@drawable/placeholder" />
 
         <LinearLayout
             android:layout_width="0dp"
