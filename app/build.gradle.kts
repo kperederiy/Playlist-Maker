@@ -35,8 +35,9 @@ android {
     }
 }
 
-dependencies {
 
+dependencies {
+    implementation("com.github.bumptech.glide:glide:5.0.5")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
