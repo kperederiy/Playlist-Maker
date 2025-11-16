@@ -4,10 +4,11 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.Toast
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.getSystemService
 import androidx.core.view.isVisible
@@ -40,6 +41,10 @@ class SearchActivity : AppCompatActivity() {
 
     private lateinit var inputSearchText: EditText
     private lateinit var btnClearSearch: ImageView
+    private lateinit var tracksRecyclerView: RecyclerView
+    private lateinit var emptyState: LinearLayout
+    private lateinit var errorState: LinearLayout
+    private lateinit var btnRetry: View
 
     private var currentText: String = ""
     private val tracks: MutableList<Track> = mutableListOf()
@@ -51,7 +56,11 @@ class SearchActivity : AppCompatActivity() {
 
         inputSearchText = findViewById(R.id.inputSearchText)
         btnClearSearch = findViewById(R.id.btnClearSearch)
-        val tracksRecyclerView : RecyclerView = findViewById(R.id.Tracks)
+        tracksRecyclerView = findViewById(R.id.Tracks)
+        emptyState = findViewById(R.id.emptyState)
+        errorState = findViewById(R.id.errorState)
+        btnRetry = findViewById(R.id.btnRetry)
+
 
         tracksRecyclerView.adapter = tracksAdapter
 
@@ -67,15 +76,29 @@ class SearchActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 btnClearSearch.isVisible = !s.isNullOrEmpty()
                 currentText = s.toString()
-
-                if (currentText.isNotEmpty()) {
-                    searchTracks(currentText)
-                }
             }
 
             override fun afterTextChanged(s: Editable?) {
             }
         })
+
+        inputSearchText.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+
+                if (currentText.isNotEmpty()) {
+                    searchTracks(currentText)
+                }
+
+                // Скрываем клавиатуру
+                val imm = getSystemService<InputMethodManager>()
+                imm?.hideSoftInputFromWindow(inputSearchText.windowToken, 0)
+
+                true
+            } else {
+                false
+            }
+        }
+
 
         btnClearSearch.setOnClickListener {
             inputSearchText.text.clear()
@@ -84,6 +107,12 @@ class SearchActivity : AppCompatActivity() {
             // Скрываем клавиатуру
             val imm = getSystemService<InputMethodManager>()
             imm?.hideSoftInputFromWindow(inputSearchText.windowToken, 0)
+        }
+
+        btnRetry.setOnClickListener {
+            if (currentText.isNotEmpty()) {
+                searchTracks(currentText)
+            }
         }
     }
 
@@ -99,11 +128,11 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun searchTracks(query: String) {
+
         iTunesService.searchSongs(query).enqueue(object : Callback<SearchResponse> {
             override fun onResponse(call: Call<SearchResponse>, response: Response<SearchResponse>) {
                 if (response.isSuccessful) {
                     val body = response.body()
-                    Toast.makeText(this@SearchActivity, "Треков нашли: ${body?.results?.size}", Toast.LENGTH_SHORT).show()
                     tracks.clear()
                     body?.results?.forEach { result ->
                         val formattedTime = SimpleDateFormat("mm:ss", Locale.getDefault())
@@ -118,12 +147,22 @@ class SearchActivity : AppCompatActivity() {
                         )
                     }
                     tracksAdapter.notifyDataSetChanged()
+                    if (tracks.isEmpty()) {
+                        tracksRecyclerView.visibility = View.GONE
+                        emptyState.visibility = View.VISIBLE
+                        errorState.visibility = View.GONE
+                    } else {
+                        emptyState.visibility = View.GONE
+                        errorState.visibility = View.GONE
+                        tracksRecyclerView.visibility = View.VISIBLE
+                    }
                 }
             }
 
             override fun onFailure(call: Call<SearchResponse>, t: Throwable) {
-                //t.printStackTrace()
-                Toast.makeText(this@SearchActivity, "Ошибка сети: ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
+                tracksRecyclerView.visibility = View.GONE
+                emptyState.visibility = View.GONE
+                errorState.visibility = View.VISIBLE
             }
         })
     }
