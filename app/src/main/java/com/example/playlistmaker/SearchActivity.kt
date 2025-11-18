@@ -19,8 +19,6 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.GET
-import retrofit2.http.Query
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -34,10 +32,6 @@ class SearchActivity : AppCompatActivity() {
         .build()
 
     private val iTunesService = retrofit.create(ITunesApi::class.java)
-    interface ITunesApi {
-        @GET("search?entity=song")
-        fun searchSongs(@Query("term") text: String): Call<SearchResponse>
-    }
 
     private lateinit var inputSearchText: EditText
     private lateinit var btnClearSearch: ImageView
@@ -76,6 +70,15 @@ class SearchActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 btnClearSearch.isVisible = !s.isNullOrEmpty()
                 currentText = s.toString()
+
+                if (currentText.isEmpty()) {
+                    tracks.clear()
+                    tracksAdapter.notifyDataSetChanged()
+
+                    tracksRecyclerView.visibility = View.GONE
+                    emptyState.visibility = View.GONE
+                    errorState.visibility = View.GONE
+                }
             }
 
             override fun afterTextChanged(s: Editable?) {
