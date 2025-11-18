@@ -17,5 +17,13 @@
         <item name="editTextColorTextHint">@color/gray</item>
     </style>
 
+    <style name="AppSwitchStyle" parent="Widget.MaterialComponents.CompoundButton.Switch">
+        <item name="thumbTint">@color/switch_thumb_color</item>
+        <item name="trackTint">@color/switch_track_color</item>
+    </style>
+
     <style name="Theme.PlaylistMaker" parent="Base.Theme.PlaylistMaker" />
+
+    <color name="switch_track_color">#76EAE0</color>
+    <color name="switch_thumb_color">#00D6C3</color>
 </resources>
