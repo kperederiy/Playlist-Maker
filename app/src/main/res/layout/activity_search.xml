@@ -35,7 +35,9 @@
             android:drawableTint="?attr/editTextColorTextHint"
             android:drawablePadding="8dp"
             android:textColor="?attr/editTextColorText"
-            android:textColorHint="?attr/editTextColorTextHint" />
+            android:textColorHint="?attr/editTextColorTextHint"
+            android:imeOptions="actionDone"
+            android:singleLine="true" />
         <ImageView
             android:id="@+id/btnClearSearch"
             android:layout_width="wrap_content"
@@ -54,4 +56,90 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+    <LinearLayout
+        android:id="@+id/emptyState"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="top|center_horizontal"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:paddingTop="210dp">
+
+        <ImageView
+            android:id="@+id/emptyImage"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/empty_state"
+            android:contentDescription="@string/nothing_found" />
+
+        <TextView
+            android:id="@+id/emptyText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/nothing_found"
+            android:fontFamily="@font/ys_display_medium"
+            android:textColor="?attr/colorOnSecondary"
+            android:textSize="19sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/errorState"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="top|center_horizontal"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:paddingTop="210dp">
+
+        <ImageView
+            android:id="@+id/errorImage"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/error_state"
+            android:contentDescription="@string/network_error" />
+
+        <TextView
+            android:id="@+id/errorTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:text="@string/network_error"
+            android:fontFamily="@font/ys_display_medium"
+            android:textColor="?attr/colorOnSecondary"
+            android:textSize="19sp" />
+
+        <TextView
+            android:id="@+id/errorSubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:text="@string/try_internet"
+            android:fontFamily="@font/ys_display_medium"
+            android:textColor="?attr/colorOnSecondary"
+            android:textSize="19sp" />
+
+        <Button
+            android:id="@+id/btnRetry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAllCaps="false"
+            android:layout_marginTop="24dp"
+            android:text="@string/retry"
+            android:fontFamily="@font/ys_display_bold"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="14sp"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="10dp"
+            android:backgroundTint="?attr/colorOnSecondary"
+            app:cornerRadius="54dp" />
+
+    </LinearLayout>
+
+
 </LinearLayout>

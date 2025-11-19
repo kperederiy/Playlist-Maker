@@ -21,6 +21,7 @@
 
     <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/themeSwitch"
+        style="@style/AppSwitchStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/dark_theme"

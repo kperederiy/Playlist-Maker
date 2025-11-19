@@ -16,4 +16,13 @@
         <item name="editTextColorText">@color/black_full</item>
         <item name="editTextColorTextHint">@color/black</item>
     </style>
+
+    <style name="AppSwitchStyle" parent="Widget.MaterialComponents.CompoundButton.Switch">
+        <item name="thumbTint">@color/switch_thumb_color</item>
+        <item name="trackTint">@color/switch_track_color</item>
+    </style>
+
+    <color name="switch_track_color">#9FBBF3</color>
+    <color name="switch_thumb_color">#3772E7</color>
+
 </resources>
