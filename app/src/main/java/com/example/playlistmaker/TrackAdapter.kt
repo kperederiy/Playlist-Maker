@@ -12,6 +12,11 @@ class TrackAdapter(
     val tracks: List<Track>
 ) : RecyclerView.Adapter<TrackHolder>() {
 
+    var onTrackClick: ((Track) -> Unit)? = null
+    // Делаем внутренний изменяемый список
+    private val items = tracks.toMutableList()
+
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -26,10 +31,20 @@ class TrackAdapter(
     ) {
         val track = tracks[position]
         holder.bind(track)
+        holder.itemView.setOnClickListener {
+            onTrackClick?.invoke(track)
+        }
+
     }
 
     override fun getItemCount(): Int {
         return tracks.size
+    }
+
+    fun updateItems(list: List<Track>) {
+        items.clear()
+        items.addAll(list)
+        notifyDataSetChanged()
     }
 }
 

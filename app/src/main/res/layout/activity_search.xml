@@ -50,6 +50,56 @@
             app:tint="?attr/editTextColorTextHint" />
     </FrameLayout>
 
+<!--    <androidx.recyclerview.widget.RecyclerView-->
+<!--        android:id="@+id/historyRecyclerView"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:visibility="gone" />-->
+<!--    <Button-->
+<!--        android:id="@+id/btnClearHistory"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="Очистить историю"-->
+<!--        android:visibility="gone"/>-->
+    <!-- === ИСТОРИЯ ПОИСКА === -->
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_marginTop="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/historyTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Вы искали"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            android:paddingBottom="8dp" />
+
+        <!-- Список истории -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/historyRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+        <!-- Кнопка очистки истории -->
+        <TextView
+            android:id="@+id/btnClearHistory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Очистить историю"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp"
+            android:padding="8dp"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/Tracks"
         android:layout_width="match_parent"
