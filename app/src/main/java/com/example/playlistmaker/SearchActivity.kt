@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.getSystemService
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
 import retrofit2.Call
@@ -63,15 +64,15 @@ class SearchActivity : AppCompatActivity() {
             ).show()
         }
 
-
         searchHistory = SearchHistory(getSharedPreferences("history_prefs", MODE_PRIVATE))
-
         historyTitle = findViewById(R.id.historyTitle)
         historyRecyclerView = findViewById(R.id.historyRecyclerView)
         btnClearHistory = findViewById(R.id.btnClearHistory)
 
+        // обязательно установить layoutManager прежде чем присваивать адаптер
+        historyRecyclerView.layoutManager = LinearLayoutManager(this)
+
         historyAdapter = TrackAdapter(mutableListOf())
-        updateHistory()
         historyRecyclerView.adapter = historyAdapter
 
 
