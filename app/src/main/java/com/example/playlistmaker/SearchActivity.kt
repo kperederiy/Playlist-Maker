@@ -33,6 +33,7 @@ class SearchActivity : AppCompatActivity() {
     private var currentText: String = ""
     private val tracks: MutableList<Track> = mutableListOf()
     private val tracksAdapter = TrackAdapter(tracks)
+
     private lateinit var searchHistory: SearchHistory
     private lateinit var historyTitle: TextView
     private lateinit var historyRecyclerView: RecyclerView
@@ -69,7 +70,8 @@ class SearchActivity : AppCompatActivity() {
         historyRecyclerView = findViewById(R.id.historyRecyclerView)
         btnClearHistory = findViewById(R.id.btnClearHistory)
 
-        historyAdapter = TrackAdapter(searchHistory.getHistory().toMutableList())
+        historyAdapter = TrackAdapter(mutableListOf())
+        updateHistory()
         historyRecyclerView.adapter = historyAdapter
 
 
@@ -166,10 +168,9 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun updateHistory() {
-        val list = searchHistory.getHistory().toMutableList()
+        val list = searchHistory.getHistory()
         historyAdapter.updateItems(list)
     }
-
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
