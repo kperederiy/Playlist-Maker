@@ -57,11 +57,6 @@ class SearchActivity : AppCompatActivity() {
         tracksAdapter.onTrackClick = { track ->
             searchHistory.saveTrack(track)
             updateHistory()
-            Toast.makeText(
-                this,
-                "Трек с ID ${track.trackId} добавлен в историю",
-                Toast.LENGTH_SHORT
-            ).show()
         }
 
         searchHistory = SearchHistory(getSharedPreferences("history_prefs", MODE_PRIVATE))
@@ -79,6 +74,15 @@ class SearchActivity : AppCompatActivity() {
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
         toolbar.setNavigationOnClickListener {
             onBackPressedDispatcher.onBackPressed()
+        }
+
+        inputSearchText.setOnFocusChangeListener { view, hasFocus ->
+            if (hasFocus && inputSearchText.text.isEmpty()) {
+                historyTitle.visibility = View.VISIBLE
+                historyRecyclerView.visibility = View.VISIBLE
+                btnClearHistory.visibility = View.VISIBLE
+                updateHistory()
+            }
         }
 
         inputSearchText.addTextChangedListener(object : TextWatcher {
@@ -101,25 +105,10 @@ class SearchActivity : AppCompatActivity() {
                     historyRecyclerView.visibility = View.VISIBLE
                     btnClearHistory.visibility = View.VISIBLE
                     updateHistory()
-
-                    val history = searchHistory.getHistory()
-                    if (history.isNotEmpty()) {
-                        val message = history.joinToString("\n") { track ->
-                            "• ${track.trackName} (ID: ${track.trackId})"
-                        }
-
-                        Toast.makeText(
-                            this@SearchActivity,
-                            "История:\n$message",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    } else {
-                        Toast.makeText(
-                            this@SearchActivity,
-                            "История пустая",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
+                } else {
+                    historyTitle.visibility = View.GONE
+                    historyRecyclerView.visibility = View.GONE
+                    btnClearHistory.visibility = View.GONE
                 }
 
             }

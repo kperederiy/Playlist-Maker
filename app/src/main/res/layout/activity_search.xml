@@ -50,19 +50,6 @@
             app:tint="?attr/editTextColorTextHint" />
     </FrameLayout>
 
-<!--    <androidx.recyclerview.widget.RecyclerView-->
-<!--        android:id="@+id/historyRecyclerView"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:visibility="gone" />-->
-<!--    <Button-->
-<!--        android:id="@+id/btnClearHistory"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Очистить историю"-->
-<!--        android:visibility="gone"/>-->
-    <!-- === ИСТОРИЯ ПОИСКА === -->
-
     <LinearLayout
         android:orientation="vertical"
         android:layout_marginTop="16dp"
@@ -79,14 +66,12 @@
             android:visibility="gone"
             android:paddingBottom="8dp" />
 
-        <!-- Список истории -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/historyRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone" />
 
-        <!-- Кнопка очистки истории -->
         <TextView
             android:id="@+id/btnClearHistory"
             android:layout_width="wrap_content"
