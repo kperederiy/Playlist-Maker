@@ -10,7 +10,6 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.getSystemService
 import androidx.core.view.isVisible
@@ -159,6 +158,12 @@ class SearchActivity : AppCompatActivity() {
 
     private fun updateHistory() {
         val list = searchHistory.getHistory()
+        if (list.isEmpty()) {
+            // скрываем, если пусто
+            historyTitle.visibility = View.GONE
+            historyRecyclerView.visibility = View.GONE
+            btnClearHistory.visibility = View.GONE
+        }
         historyAdapter.updateItems(list)
     }
 
