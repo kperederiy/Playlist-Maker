@@ -9,6 +9,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.getSystemService
 import androidx.core.view.isVisible
@@ -28,10 +29,15 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var emptyState: LinearLayout
     private lateinit var errorState: LinearLayout
     private lateinit var btnRetry: View
-
     private var currentText: String = ""
     private val tracks: MutableList<Track> = mutableListOf()
     private val tracksAdapter = TrackAdapter(tracks)
+
+    private lateinit var searchHistory: SearchHistory
+    private lateinit var historyTitle: TextView
+    private lateinit var historyRecyclerView: RecyclerView
+    private lateinit var historyAdapter: TrackAdapter
+    private lateinit var btnClearHistory: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,10 +52,32 @@ class SearchActivity : AppCompatActivity() {
 
 
         tracksRecyclerView.adapter = tracksAdapter
+        tracksAdapter.onTrackClick = { track ->
+            searchHistory.saveTrack(track)
+            updateHistory()
+        }
+
+        searchHistory = SearchHistory(getSharedPreferences("history_prefs", MODE_PRIVATE))
+        historyTitle = findViewById(R.id.historyTitle)
+        historyRecyclerView = findViewById(R.id.historyRecyclerView)
+        btnClearHistory = findViewById(R.id.btnClearHistory)
+
+        historyAdapter = TrackAdapter(mutableListOf())
+        historyRecyclerView.adapter = historyAdapter
+
 
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
         toolbar.setNavigationOnClickListener {
             onBackPressedDispatcher.onBackPressed()
+        }
+
+        inputSearchText.setOnFocusChangeListener { view, hasFocus ->
+            if (hasFocus && inputSearchText.text.isEmpty()) {
+                historyTitle.visibility = View.VISIBLE
+                historyRecyclerView.visibility = View.VISIBLE
+                btnClearHistory.visibility = View.VISIBLE
+                updateHistory()
+            }
         }
 
         inputSearchText.addTextChangedListener(object : TextWatcher {
@@ -67,7 +95,17 @@ class SearchActivity : AppCompatActivity() {
                     tracksRecyclerView.visibility = View.GONE
                     emptyState.visibility = View.GONE
                     errorState.visibility = View.GONE
+
+                    historyTitle.visibility = View.VISIBLE
+                    historyRecyclerView.visibility = View.VISIBLE
+                    btnClearHistory.visibility = View.VISIBLE
+                    updateHistory()
+                } else {
+                    historyTitle.visibility = View.GONE
+                    historyRecyclerView.visibility = View.GONE
+                    btnClearHistory.visibility = View.GONE
                 }
+
             }
 
             override fun afterTextChanged(s: Editable?) {
@@ -106,6 +144,23 @@ class SearchActivity : AppCompatActivity() {
                 searchTracks(currentText)
             }
         }
+
+        btnClearHistory.setOnClickListener {
+            searchHistory.clearHistory()
+            updateHistory()
+        }
+
+    }
+
+    private fun updateHistory() {
+        val list = searchHistory.getHistory()
+        if (list.isEmpty()) {
+            // скрываем, если пусто
+            historyTitle.visibility = View.GONE
+            historyRecyclerView.visibility = View.GONE
+            btnClearHistory.visibility = View.GONE
+        }
+        historyAdapter.updateItems(list)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -131,6 +186,7 @@ class SearchActivity : AppCompatActivity() {
                             .format(result.trackTimeMillis)
                         tracks.add(
                             Track(
+                                trackId = result.trackId,
                                 trackName = result.trackName,
                                 artistName = result.artistName,
                                 trackTime = formattedTime,
@@ -139,6 +195,8 @@ class SearchActivity : AppCompatActivity() {
                         )
                     }
                     tracksAdapter.notifyDataSetChanged()
+                    historyRecyclerView.visibility = View.GONE
+                    btnClearHistory.visibility = View.GONE
                     if (tracks.isEmpty()) {
                         tracksRecyclerView.visibility = View.GONE
                         emptyState.visibility = View.VISIBLE
@@ -160,3 +218,4 @@ class SearchActivity : AppCompatActivity() {
     }
 
 }
+

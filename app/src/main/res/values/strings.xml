@@ -11,7 +11,7 @@
     <string name="support">Написать в поддержку</string>
     <string name="user_agreement">Пользовательское соглашение</string>
     <string name="share_url">https://practicum.yandex.ru/profile/android-developer/</string>
-    <string name="share_text">Поделиться через...</string>
+    <string name="share_text">Поделиться через…</string>
     <string name="email">kperederiy@yandex.ru</string>
     <string name="subject_email">Сообщение разработчикам и разработчицам приложения Playlist Maker</string>
     <string name="text_email">Спасибо разработчикам и разработчицам за крутое приложение!</string>
@@ -21,4 +21,6 @@
     <string name="network_error">Проблемы со связью</string>
     <string name="try_internet">Загрузка не удалась. Проверьте подключение к интернету</string>
     <string name="retry">Обновить</string>
+    <string name="history_title">Вы искали</string>
+    <string name="btn_clear_history">Очистить историю</string>
 </resources>
