@@ -64,6 +64,21 @@ class AudioPlayerActivity : AppCompatActivity() {
             }
         }
 
+        val btnPlaylist = findViewById<ImageView>(R.id.btnPlaylist)
+
+        var isInPlaylist = false
+        btnPlaylist.setOnClickListener {
+            isInPlaylist = !isInPlaylist
+            if (isInPlaylist) {
+                btnPlaylist.setImageResource(R.drawable.ic_del_playlist_51)
+                // здесь можно добавить логику добавления трека в плейлист
+            } else {
+                btnPlaylist.setImageResource(R.drawable.ic_add_playlist_51)
+                // здесь можно добавить логику удаления трека из плейлиста
+            }
+        }
+
+
 
     }
 

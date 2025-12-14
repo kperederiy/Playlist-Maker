@@ -199,8 +199,8 @@ class SearchActivity : AppCompatActivity() {
                                 artworkUrl100 = result.artworkUrl100,
                                 collectionName = result.collectionName ?: "",
                                 releaseDate = result.releaseDate ?: "",
-                                primaryGenreName = result.primaryGenreName ?: "",
-                                country = result.country ?: ""
+                                primaryGenreName = result.primaryGenreName,
+                                country = result.country
                             )
                         )
                     }
