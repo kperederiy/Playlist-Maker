@@ -1,5 +1,6 @@
 package com.example.playlistmaker
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -10,9 +11,13 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.getSystemService
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
 import retrofit2.Call
@@ -40,8 +45,20 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var btnClearHistory: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
+
+        val rootView = findViewById<View>(R.id.root)
+        ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.updatePadding(
+                top = systemBars.top,
+                bottom = systemBars.bottom
+            )
+            insets
+        }
 
         inputSearchText = findViewById(R.id.inputSearchText)
         btnClearSearch = findViewById(R.id.btnClearSearch)
@@ -55,6 +72,7 @@ class SearchActivity : AppCompatActivity() {
         tracksAdapter.onTrackClick = { track ->
             searchHistory.saveTrack(track)
             updateHistory()
+            openPlayer(track)
         }
 
         searchHistory = SearchHistory(getSharedPreferences("history_prefs", MODE_PRIVATE))
@@ -64,6 +82,9 @@ class SearchActivity : AppCompatActivity() {
 
         historyAdapter = TrackAdapter(mutableListOf())
         historyRecyclerView.adapter = historyAdapter
+        historyAdapter.onTrackClick = { track ->
+            openPlayer(track)
+        }
 
 
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
@@ -174,6 +195,7 @@ class SearchActivity : AppCompatActivity() {
         inputSearchText.setText(restoredText)
     }
 
+
     private fun searchTracks(query: String) {
 
         iTunesService.searchSongs(query).enqueue(object : Callback<SearchResponse> {
@@ -190,7 +212,11 @@ class SearchActivity : AppCompatActivity() {
                                 trackName = result.trackName,
                                 artistName = result.artistName,
                                 trackTime = formattedTime,
-                                artworkUrl100 = result.artworkUrl100
+                                artworkUrl100 = result.artworkUrl100,
+                                collectionName = result.collectionName ?: "",
+                                releaseDate = result.releaseDate ?: "",
+                                primaryGenreName = result.primaryGenreName,
+                                country = result.country
                             )
                         )
                     }
@@ -217,5 +243,13 @@ class SearchActivity : AppCompatActivity() {
         })
     }
 
+
+    private fun openPlayer(track: Track) {
+        val intent = Intent(this, AudioPlayerActivity::class.java)
+        intent.putExtra("track", track)
+        startActivity(intent)
+    }
+
 }
+
 

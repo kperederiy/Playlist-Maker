@@ -31,5 +31,23 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">2dp</item>
     </style>
+    <style name="RoundedImage8dp" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
+    <style name="TrackInfoLabel">
+        <item name="android:textSize">13sp</item>
+        <item name="android:fontFamily">@font/ys_display_regular</item>
+        <item name="android:textColor">@color/gray</item>
+        <item name="android:layout_marginTop">17dp</item>
+    </style>
+
+    <style name="TrackInfoValue">
+        <item name="android:textSize">13sp</item>
+        <item name="android:fontFamily">@font/ys_display_regular</item>
+        <item name="android:textColor">?attr/colorOnSecondary</item>
+        <item name="android:layout_marginTop">17dp</item>
+    </style>
+
 
 </resources>
