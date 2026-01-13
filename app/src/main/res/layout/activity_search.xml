@@ -20,6 +20,7 @@
         app:titleTextColor="?attr/colorOnSecondary"
         android:layout_marginBottom="8dp" />
 
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -51,6 +52,15 @@
             android:visibility="gone"
             app:tint="?attr/editTextColorTextHint" />
     </FrameLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="140dp"
+        android:visibility="gone"
+        style="@style/AppProgressBarStyle"
+        android:layout_gravity="center"/>
 
     <LinearLayout
         android:orientation="vertical"

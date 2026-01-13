@@ -22,6 +22,11 @@
         <item name="trackTint">@color/switch_track_color</item>
     </style>
 
+    <style name="AppProgressBarStyle" parent="Widget.AppCompat.ProgressBar">
+        <item name="android:indeterminateTint">@color/background</item>
+        <item name="android:progressTint">@color/background</item>
+    </style>
+
     <color name="switch_track_color">#9FBBF3</color>
     <color name="switch_thumb_color">#3772E7</color>
 
