@@ -242,7 +242,8 @@ class SearchActivity : AppCompatActivity() {
                                 collectionName = result.collectionName ?: "",
                                 releaseDate = result.releaseDate ?: "",
                                 primaryGenreName = result.primaryGenreName,
-                                country = result.country
+                                country = result.country,
+                                previewUrl = result.previewUrl
                             )
                         )
                     }

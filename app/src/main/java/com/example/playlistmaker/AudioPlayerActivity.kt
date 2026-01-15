@@ -54,6 +54,7 @@ class AudioPlayerActivity : AppCompatActivity() {
         genre.text = track.primaryGenreName
         country.text = track.country
         releaseDate.text = track.releaseDate.take(4)
+        val previewUrl = track.previewUrl
 
         val btnPlay = findViewById<ImageView>(R.id.btnPlay)
         var isPlaying = false
