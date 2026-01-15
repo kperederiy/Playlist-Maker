@@ -1,5 +1,6 @@
 package com.example.playlistmaker
 
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
@@ -13,6 +14,17 @@ import com.bumptech.glide.Glide
 import com.google.android.material.appbar.MaterialToolbar
 
 class AudioPlayerActivity : AppCompatActivity() {
+    companion object {
+        private const val STATE_DEFAULT = 0
+        private const val STATE_PREPARED = 1
+        private const val STATE_PLAYING = 2
+        private const val STATE_PAUSED = 3
+    }
+
+    private var playerState = STATE_DEFAULT
+
+    private lateinit var btnPlay: ImageView
+    private var mediaPlayer = MediaPlayer()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -54,19 +66,12 @@ class AudioPlayerActivity : AppCompatActivity() {
         genre.text = track.primaryGenreName
         country.text = track.country
         releaseDate.text = track.releaseDate.take(4)
-        val previewUrl = track.previewUrl
 
-        val btnPlay = findViewById<ImageView>(R.id.btnPlay)
-        var isPlaying = false
+        btnPlay = findViewById(R.id.btnPlay)
+        preparePlayer(track.previewUrl)
+
         btnPlay.setOnClickListener {
-            isPlaying = !isPlaying
-            if (isPlaying) {
-                btnPlay.setImageResource(R.drawable.ic_pause_100)
-                // здесь можно добавить логику для запуска воспроизведения
-            } else {
-                btnPlay.setImageResource(R.drawable.ic_play_100)
-                // здесь можно добавить логику для паузы
-            }
+            playbackControl()
         }
 
         val btnLike = findViewById<ImageView>(R.id.btnLike)
@@ -95,9 +100,57 @@ class AudioPlayerActivity : AppCompatActivity() {
                 // здесь можно добавить логику удаления трека из плейлиста
             }
         }
+    }
+    override fun onPause() {
+        super.onPause()
+        pausePlayer()
+    }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        mediaPlayer.release()
+    }
 
+    // ---------- ЛОГИКА УПРАВЛЕНИЯ ----------
 
+    private fun playbackControl() {
+        when (playerState) {
+            STATE_PLAYING -> pausePlayer()
+            STATE_PREPARED, STATE_PAUSED -> startPlayer()
+        }
+    }
+
+    // ---------- ИНИЦИАЛИЗАЦИЯ ----------
+
+    private fun preparePlayer(previewUrl: String) {
+        mediaPlayer.setDataSource(previewUrl)
+        mediaPlayer.prepareAsync()
+
+        mediaPlayer.setOnPreparedListener {
+            playerState = STATE_PREPARED
+            btnPlay.isEnabled = true
+        }
+
+        mediaPlayer.setOnCompletionListener {
+            playerState = STATE_PREPARED
+            btnPlay.setImageResource(R.drawable.ic_play_100)
+        }
+    }
+
+    // ---------- УПРАВЛЕНИЕ ----------
+
+    private fun startPlayer() {
+        mediaPlayer.start()
+        btnPlay.setImageResource(R.drawable.ic_pause_100)
+        playerState = STATE_PLAYING
+    }
+
+    private fun pausePlayer() {
+        if (playerState == STATE_PLAYING) {
+            mediaPlayer.pause()
+        }
+        btnPlay.setImageResource(R.drawable.ic_play_100)
+        playerState = STATE_PAUSED
     }
 
 }
