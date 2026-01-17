@@ -2,6 +2,8 @@ package com.example.playlistmaker
 
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -26,6 +28,22 @@ class AudioPlayerActivity : AppCompatActivity() {
 
     private lateinit var btnPlay: ImageView
     private var mediaPlayer = MediaPlayer()
+    private lateinit var durationTextView: TextView
+    private val handler = Handler(Looper.getMainLooper())
+    private val updateProgressRunnable = object : Runnable {
+        override fun run() {
+            if (playerState == STATE_PLAYING) {
+                val currentPosition = mediaPlayer.currentPosition
+                durationTextView.text = formatTime(currentPosition)
+                handler.postDelayed(this, 300)
+            }
+        }
+    }
+    private fun formatTime(millis: Int): String {
+        val minutes = millis / 1000 / 60
+        val seconds = millis / 1000 % 60
+        return String.format("%02d:%02d", minutes, seconds)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -74,6 +92,8 @@ class AudioPlayerActivity : AppCompatActivity() {
         btnPlay.setOnClickListener {
             playbackControl()
         }
+        durationTextView = findViewById(R.id.duration)
+        durationTextView.text = "00:00"
 
         val btnLike = findViewById<ImageView>(R.id.btnLike)
         var isLiked = false
@@ -133,8 +153,10 @@ class AudioPlayerActivity : AppCompatActivity() {
         }
 
         mediaPlayer.setOnCompletionListener {
+            handler.removeCallbacks(updateProgressRunnable)
             playerState = STATE_PREPARED
             btnPlay.setImageResource(R.drawable.ic_play_100)
+            durationTextView.text = "00:00"
         }
     }
 
@@ -144,11 +166,13 @@ class AudioPlayerActivity : AppCompatActivity() {
         mediaPlayer.start()
         btnPlay.setImageResource(R.drawable.ic_pause_100)
         playerState = STATE_PLAYING
+        handler.post(updateProgressRunnable)
     }
 
     private fun pausePlayer() {
         if (playerState == STATE_PLAYING) {
             mediaPlayer.pause()
+            handler.removeCallbacks(updateProgressRunnable)
         }
         btnPlay.setImageResource(R.drawable.ic_play_100)
         playerState = STATE_PAUSED
