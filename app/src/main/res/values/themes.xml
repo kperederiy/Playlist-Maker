@@ -22,8 +22,15 @@
         <item name="trackTint">@color/switch_track_color</item>
     </style>
 
+    <style name="AppProgressBarStyle" parent="Widget.AppCompat.ProgressBar">
+        <item name="android:indeterminateTint">@color/background</item>
+        <item name="android:progressTint">@color/background</item>
+    </style>
+
     <style name="Theme.PlaylistMaker" parent="Base.Theme.PlaylistMaker" />
 
     <color name="switch_track_color">#76EAE0</color>
     <color name="switch_thumb_color">#00D6C3</color>
+
+
 </resources>

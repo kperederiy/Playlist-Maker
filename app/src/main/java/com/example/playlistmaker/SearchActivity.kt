@@ -25,6 +25,8 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.Locale
+private const val SEARCH_DEBOUNCE_DELAY = 2000L
+private const val CLICK_DEBOUNCE_DELAY = 1000L
 
 class SearchActivity : AppCompatActivity() {
     private val iTunesService = RetrofitClient.iTunesService
@@ -43,6 +45,11 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var historyRecyclerView: RecyclerView
     private lateinit var historyAdapter: TrackAdapter
     private lateinit var btnClearHistory: View
+
+    private val searchHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private var searchRunnable: Runnable? = null
+    private lateinit var progressBar: View
+    private var isClickAllowed = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -66,13 +73,16 @@ class SearchActivity : AppCompatActivity() {
         emptyState = findViewById(R.id.emptyState)
         errorState = findViewById(R.id.errorState)
         btnRetry = findViewById(R.id.btnRetry)
+        progressBar = findViewById(R.id.progressBar)
 
 
         tracksRecyclerView.adapter = tracksAdapter
         tracksAdapter.onTrackClick = { track ->
-            searchHistory.saveTrack(track)
-            updateHistory()
-            openPlayer(track)
+            if (clickDebounce()) {
+                searchHistory.saveTrack(track)
+                updateHistory()
+                openPlayer(track)
+            }
         }
 
         searchHistory = SearchHistory(getSharedPreferences("history_prefs", MODE_PRIVATE))
@@ -83,7 +93,9 @@ class SearchActivity : AppCompatActivity() {
         historyAdapter = TrackAdapter(mutableListOf())
         historyRecyclerView.adapter = historyAdapter
         historyAdapter.onTrackClick = { track ->
-            openPlayer(track)
+            if (clickDebounce()) {
+                openPlayer(track)
+            }
         }
 
 
@@ -109,6 +121,10 @@ class SearchActivity : AppCompatActivity() {
                 btnClearSearch.isVisible = !s.isNullOrEmpty()
                 currentText = s.toString()
 
+                searchRunnable?.let {
+                    searchHandler.removeCallbacks(it)
+                }
+
                 if (currentText.isEmpty()) {
                     tracks.clear()
                     tracksAdapter.notifyDataSetChanged()
@@ -125,6 +141,11 @@ class SearchActivity : AppCompatActivity() {
                     historyTitle.visibility = View.GONE
                     historyRecyclerView.visibility = View.GONE
                     btnClearHistory.visibility = View.GONE
+
+                    searchRunnable = Runnable {
+                        searchTracks(currentText)
+                    }
+                    searchHandler.postDelayed(searchRunnable!!, SEARCH_DEBOUNCE_DELAY)
                 }
 
             }
@@ -197,9 +218,14 @@ class SearchActivity : AppCompatActivity() {
 
 
     private fun searchTracks(query: String) {
+        progressBar.visibility = View.VISIBLE
+        tracksRecyclerView.visibility = View.GONE
+        emptyState.visibility = View.GONE
+        errorState.visibility = View.GONE
 
         iTunesService.searchSongs(query).enqueue(object : Callback<SearchResponse> {
             override fun onResponse(call: Call<SearchResponse>, response: Response<SearchResponse>) {
+                progressBar.visibility = View.GONE
                 if (response.isSuccessful) {
                     val body = response.body()
                     tracks.clear()
@@ -216,7 +242,8 @@ class SearchActivity : AppCompatActivity() {
                                 collectionName = result.collectionName ?: "",
                                 releaseDate = result.releaseDate ?: "",
                                 primaryGenreName = result.primaryGenreName,
-                                country = result.country
+                                country = result.country,
+                                previewUrl = result.previewUrl
                             )
                         )
                     }
@@ -236,6 +263,7 @@ class SearchActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<SearchResponse>, t: Throwable) {
+                progressBar.visibility = View.GONE
                 tracksRecyclerView.visibility = View.GONE
                 emptyState.visibility = View.GONE
                 errorState.visibility = View.VISIBLE
@@ -243,12 +271,28 @@ class SearchActivity : AppCompatActivity() {
         })
     }
 
-
     private fun openPlayer(track: Track) {
         val intent = Intent(this, AudioPlayerActivity::class.java)
         intent.putExtra("track", track)
         startActivity(intent)
     }
+
+    private fun clickDebounce(): Boolean {
+        val current = isClickAllowed
+        if (isClickAllowed) {
+            isClickAllowed = false
+            searchHandler.postDelayed(
+                { isClickAllowed = true },
+                CLICK_DEBOUNCE_DELAY
+            )
+        }
+        return current
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        searchHandler.removeCallbacksAndMessages(null)
+    }
+
 
 }
 

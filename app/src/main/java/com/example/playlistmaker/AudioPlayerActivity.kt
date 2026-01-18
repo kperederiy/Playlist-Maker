@@ -1,6 +1,9 @@
 package com.example.playlistmaker
 
+import android.media.MediaPlayer
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -13,6 +16,25 @@ import com.bumptech.glide.Glide
 import com.google.android.material.appbar.MaterialToolbar
 
 class AudioPlayerActivity : AppCompatActivity() {
+    private var playerState = STATE_DEFAULT
+    private lateinit var btnPlay: ImageView
+    private var mediaPlayer = MediaPlayer()
+    private lateinit var durationTextView: TextView
+    private val handler = Handler(Looper.getMainLooper())
+    private val updateProgressRunnable = object : Runnable {
+        override fun run() {
+            if (playerState == STATE_PLAYING) {
+                val currentPosition = mediaPlayer.currentPosition
+                durationTextView.text = formatTime(currentPosition)
+                handler.postDelayed(this, UPDATE_INTERVAL_MS)
+            }
+        }
+    }
+    private fun formatTime(millis: Int): String {
+        val minutes = millis / 1000 / 60
+        val seconds = millis / 1000 % 60
+        return String.format("%02d:%02d", minutes, seconds)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -55,18 +77,14 @@ class AudioPlayerActivity : AppCompatActivity() {
         country.text = track.country
         releaseDate.text = track.releaseDate.take(4)
 
-        val btnPlay = findViewById<ImageView>(R.id.btnPlay)
-        var isPlaying = false
+        btnPlay = findViewById(R.id.btnPlay)
+        preparePlayer(track.previewUrl)
+
         btnPlay.setOnClickListener {
-            isPlaying = !isPlaying
-            if (isPlaying) {
-                btnPlay.setImageResource(R.drawable.ic_pause_100)
-                // здесь можно добавить логику для запуска воспроизведения
-            } else {
-                btnPlay.setImageResource(R.drawable.ic_play_100)
-                // здесь можно добавить логику для паузы
-            }
+            playbackControl()
         }
+        durationTextView = findViewById(R.id.duration)
+        durationTextView.text = formatTime(0)
 
         val btnLike = findViewById<ImageView>(R.id.btnLike)
         var isLiked = false
@@ -94,10 +112,68 @@ class AudioPlayerActivity : AppCompatActivity() {
                 // здесь можно добавить логику удаления трека из плейлиста
             }
         }
-
-
-
+    }
+    override fun onPause() {
+        super.onPause()
+        pausePlayer()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        mediaPlayer.release()
+    }
+
+    // ---------- ЛОГИКА УПРАВЛЕНИЯ ----------
+
+    private fun playbackControl() {
+        when (playerState) {
+            STATE_PLAYING -> pausePlayer()
+            STATE_PREPARED, STATE_PAUSED -> startPlayer()
+        }
+    }
+
+    // ---------- ИНИЦИАЛИЗАЦИЯ ----------
+
+    private fun preparePlayer(previewUrl: String) {
+        mediaPlayer.setDataSource(previewUrl)
+        mediaPlayer.prepareAsync()
+
+        mediaPlayer.setOnPreparedListener {
+            playerState = STATE_PREPARED
+            btnPlay.isEnabled = true
+        }
+
+        mediaPlayer.setOnCompletionListener {
+            handler.removeCallbacks(updateProgressRunnable)
+            playerState = STATE_PREPARED
+            btnPlay.setImageResource(R.drawable.ic_play_100)
+            durationTextView.text = formatTime(0)
+        }
+    }
+
+    // ---------- УПРАВЛЕНИЕ ----------
+
+    private fun startPlayer() {
+        mediaPlayer.start()
+        btnPlay.setImageResource(R.drawable.ic_pause_100)
+        playerState = STATE_PLAYING
+        handler.post(updateProgressRunnable)
+    }
+
+    private fun pausePlayer() {
+        if (playerState == STATE_PLAYING) {
+            mediaPlayer.pause()
+            handler.removeCallbacks(updateProgressRunnable)
+        }
+        btnPlay.setImageResource(R.drawable.ic_play_100)
+        playerState = STATE_PAUSED
+    }
+    companion object {
+        private const val STATE_DEFAULT = 0
+        private const val STATE_PREPARED = 1
+        private const val STATE_PLAYING = 2
+        private const val STATE_PAUSED = 3
+        private const val UPDATE_INTERVAL_MS = 300L
+    }
 }
 fun Track.getCoverArtwork() = artworkUrl100.replaceAfterLast('/', "512x512bb.jpg")
