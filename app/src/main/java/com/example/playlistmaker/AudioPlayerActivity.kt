@@ -16,15 +16,7 @@ import com.bumptech.glide.Glide
 import com.google.android.material.appbar.MaterialToolbar
 
 class AudioPlayerActivity : AppCompatActivity() {
-    companion object {
-        private const val STATE_DEFAULT = 0
-        private const val STATE_PREPARED = 1
-        private const val STATE_PLAYING = 2
-        private const val STATE_PAUSED = 3
-    }
-
     private var playerState = STATE_DEFAULT
-
     private lateinit var btnPlay: ImageView
     private var mediaPlayer = MediaPlayer()
     private lateinit var durationTextView: TextView
@@ -34,7 +26,7 @@ class AudioPlayerActivity : AppCompatActivity() {
             if (playerState == STATE_PLAYING) {
                 val currentPosition = mediaPlayer.currentPosition
                 durationTextView.text = formatTime(currentPosition)
-                handler.postDelayed(this, 300)
+                handler.postDelayed(this, UPDATE_INTERVAL_MS)
             }
         }
     }
@@ -92,7 +84,7 @@ class AudioPlayerActivity : AppCompatActivity() {
             playbackControl()
         }
         durationTextView = findViewById(R.id.duration)
-        durationTextView.text = "00:00"
+        durationTextView.text = formatTime(0)
 
         val btnLike = findViewById<ImageView>(R.id.btnLike)
         var isLiked = false
@@ -155,7 +147,7 @@ class AudioPlayerActivity : AppCompatActivity() {
             handler.removeCallbacks(updateProgressRunnable)
             playerState = STATE_PREPARED
             btnPlay.setImageResource(R.drawable.ic_play_100)
-            durationTextView.text = "00:00"
+            durationTextView.text = formatTime(0)
         }
     }
 
@@ -176,6 +168,12 @@ class AudioPlayerActivity : AppCompatActivity() {
         btnPlay.setImageResource(R.drawable.ic_play_100)
         playerState = STATE_PAUSED
     }
-
+    companion object {
+        private const val STATE_DEFAULT = 0
+        private const val STATE_PREPARED = 1
+        private const val STATE_PLAYING = 2
+        private const val STATE_PAUSED = 3
+        private const val UPDATE_INTERVAL_MS = 300L
+    }
 }
 fun Track.getCoverArtwork() = artworkUrl100.replaceAfterLast('/', "512x512bb.jpg")

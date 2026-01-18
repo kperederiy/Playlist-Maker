@@ -25,6 +25,8 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.Locale
+private const val SEARCH_DEBOUNCE_DELAY = 2000L
+private const val CLICK_DEBOUNCE_DELAY = 1000L
 
 class SearchActivity : AppCompatActivity() {
     private val iTunesService = RetrofitClient.iTunesService
@@ -46,10 +48,8 @@ class SearchActivity : AppCompatActivity() {
 
     private val searchHandler = android.os.Handler(android.os.Looper.getMainLooper())
     private var searchRunnable: Runnable? = null
-    private val SEARCH_DEBOUNCE_DELAY = 2000L
     private lateinit var progressBar: View
     private var isClickAllowed = true
-    private val CLICK_DEBOUNCE_DELAY = 1000L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -288,6 +288,11 @@ class SearchActivity : AppCompatActivity() {
         }
         return current
     }
+    override fun onDestroy() {
+        super.onDestroy()
+        searchHandler.removeCallbacksAndMessages(null)
+    }
+
 
 }
 
