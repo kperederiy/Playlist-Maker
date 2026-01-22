@@ -23,7 +23,6 @@ import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.RecyclerView
 import com.example.playlistmaker.Creator
 import com.example.playlistmaker.R
-import com.example.playlistmaker.SearchHistory
 import com.example.playlistmaker.domain.model.Track
 import com.example.playlistmaker.presentation.adapter.TrackAdapter
 import com.example.playlistmaker.presentation.player.AudioPlayerActivity
@@ -42,7 +41,9 @@ class SearchActivity : AppCompatActivity() {
     private val tracks: MutableList<Track> = mutableListOf()
     private val tracksAdapter = TrackAdapter(tracks)
 
-    private lateinit var searchHistory: SearchHistory
+    private val searchHistoryInteractor by lazy {
+        Creator.provideSearchHistoryInteractor(applicationContext)
+    }
     private lateinit var historyTitle: TextView
     private lateinit var historyRecyclerView: RecyclerView
     private lateinit var historyAdapter: TrackAdapter
@@ -81,13 +82,13 @@ class SearchActivity : AppCompatActivity() {
         tracksRecyclerView.adapter = tracksAdapter
         tracksAdapter.onTrackClick = { track ->
             if (clickDebounce()) {
-                searchHistory.saveTrack(track)
+                searchHistoryInteractor.saveTrack(track)
                 updateHistory()
                 openPlayer(track)
             }
         }
 
-        searchHistory = SearchHistory(getSharedPreferences("history_prefs", MODE_PRIVATE))
+
         historyTitle = findViewById(R.id.historyTitle)
         historyRecyclerView = findViewById(R.id.historyRecyclerView)
         btnClearHistory = findViewById(R.id.btnClearHistory)
@@ -190,21 +191,20 @@ class SearchActivity : AppCompatActivity() {
         }
 
         btnClearHistory.setOnClickListener {
-            searchHistory.clearHistory()
+            searchHistoryInteractor.clearHistory()
             updateHistory()
         }
 
     }
 
     private fun updateHistory() {
-        val list = searchHistory.getHistory()
-        if (list.isEmpty()) {
-            // скрываем, если пусто
-            historyTitle.visibility = View.GONE
-            historyRecyclerView.visibility = View.GONE
-            btnClearHistory.visibility = View.GONE
-        }
-        historyAdapter.updateItems(list)
+        val history = searchHistoryInteractor.getHistory()
+        historyAdapter.updateItems(history)
+
+        val isEmpty = history.isEmpty()
+        historyTitle.isVisible = !isEmpty
+        historyRecyclerView.isVisible = !isEmpty
+        btnClearHistory.isVisible = !isEmpty
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
