@@ -18,10 +18,10 @@
             android:name=".SettingsActivity"
             android:exported="false" />
         <activity
-            android:name=".SearchActivity"
+            android:name=".presentation.search.SearchActivity"
             android:exported="false" />
         <activity
-            android:name=".AudioPlayerActivity"
+            android:name=".presentation.player.AudioPlayerActivity"
             android:exported="false" />
         <activity
             android:name=".LibraryActivity"
