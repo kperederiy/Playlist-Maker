@@ -282,6 +282,13 @@ class SearchActivity : AppCompatActivity() {
         val intent = Intent(this, AudioPlayerActivity::class.java)
         intent.putExtra("track", track)
         startActivity(intent)
+        tracksRecyclerView.visibility = View.GONE
+        emptyState.visibility = View.GONE
+        errorState.visibility = View.GONE
+
+        historyTitle.visibility = View.GONE
+        historyRecyclerView.visibility = View.GONE
+        btnClearHistory.visibility = View.GONE
     }
 
     private fun clickDebounce(): Boolean {
