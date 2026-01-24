@@ -1,4 +1,4 @@
-package com.example.playlistmaker
+package com.example.playlistmaker.presentation
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,7 +8,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import com.example.playlistmaker.R
+import com.example.playlistmaker.presentation.library.LibraryActivity
 import com.example.playlistmaker.presentation.search.SearchActivity
+import com.example.playlistmaker.presentation.settings.SettingsActivity
+import com.google.android.material.button.MaterialButton
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,21 +31,21 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        val buttonSearch = findViewById<com.google.android.material.button.MaterialButton>(R.id.search)
+        val buttonSearch = findViewById<MaterialButton>(R.id.search)
 
         buttonSearch.setOnClickListener {
             val searchIntent = Intent(this, SearchActivity::class.java)
             startActivity(searchIntent)
         }
 
-        val buttonLibrary = findViewById<com.google.android.material.button.MaterialButton>(R.id.library)
+        val buttonLibrary = findViewById<MaterialButton>(R.id.library)
 
         buttonLibrary.setOnClickListener {
             val libraryIntent = Intent(this, LibraryActivity::class.java)
             startActivity(libraryIntent)
         }
 
-        val buttonSettings = findViewById<com.google.android.material.button.MaterialButton>(R.id.settings)
+        val buttonSettings = findViewById<MaterialButton>(R.id.settings)
 
         buttonSettings.setOnClickListener {
             val settingsIntent = Intent(this, SettingsActivity::class.java)

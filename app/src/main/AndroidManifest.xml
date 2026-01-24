@@ -15,7 +15,7 @@
         android:theme="@style/Theme.PlaylistMaker"
         android:name="com.example.playlistmaker.App">
         <activity
-            android:name=".SettingsActivity"
+            android:name=".presentation.settings.SettingsActivity"
             android:exported="false" />
         <activity
             android:name=".presentation.search.SearchActivity"
@@ -24,10 +24,10 @@
             android:name=".presentation.player.AudioPlayerActivity"
             android:exported="false" />
         <activity
-            android:name=".LibraryActivity"
+            android:name=".presentation.library.LibraryActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".presentation.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
