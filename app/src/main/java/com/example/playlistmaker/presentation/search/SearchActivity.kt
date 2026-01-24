@@ -27,6 +27,8 @@ import com.example.playlistmaker.domain.model.Track
 import com.example.playlistmaker.presentation.adapter.TrackAdapter
 import com.example.playlistmaker.presentation.player.AudioPlayerActivity
 import com.google.android.material.appbar.MaterialToolbar
+import androidx.core.view.isGone
+
 private const val SEARCH_DEBOUNCE_DELAY = 2000L
 private const val CLICK_DEBOUNCE_DELAY = 1000L
 
@@ -201,10 +203,11 @@ class SearchActivity : AppCompatActivity() {
         val history = searchHistoryInteractor.getHistory()
         historyAdapter.updateItems(history)
 
-        val isEmpty = history.isEmpty()
-        historyTitle.isVisible = !isEmpty
-        historyRecyclerView.isVisible = !isEmpty
-        btnClearHistory.isVisible = !isEmpty
+        if (tracksRecyclerView.isGone) tracksRecyclerView.visibility = View.GONE
+
+        if (historyTitle.isGone) historyTitle.visibility = View.GONE
+        if (historyRecyclerView.isGone) historyRecyclerView.visibility = View.GONE
+        if (btnClearHistory.isGone) btnClearHistory.visibility = View.GONE
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -282,13 +285,6 @@ class SearchActivity : AppCompatActivity() {
         val intent = Intent(this, AudioPlayerActivity::class.java)
         intent.putExtra("track", track)
         startActivity(intent)
-        tracksRecyclerView.visibility = View.GONE
-        emptyState.visibility = View.GONE
-        errorState.visibility = View.GONE
-
-        historyTitle.visibility = View.GONE
-        historyRecyclerView.visibility = View.GONE
-        btnClearHistory.visibility = View.GONE
     }
 
     private fun clickDebounce(): Boolean {
