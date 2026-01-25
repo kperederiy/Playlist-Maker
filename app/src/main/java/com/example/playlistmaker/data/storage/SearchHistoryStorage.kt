@@ -5,9 +5,9 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
 class SearchHistoryStorage(
-    private val sharedPrefs: SharedPreferences
+    private val sharedPrefs: SharedPreferences,
+    private val gson: Gson
 ) {
-    private val gson = Gson()
 
     fun save(tracks: List<TrackHistoryDto>) {
         sharedPrefs.edit()
@@ -29,3 +29,4 @@ class SearchHistoryStorage(
         private const val KEY_HISTORY = "history"
     }
 }
+

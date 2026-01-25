@@ -14,8 +14,13 @@ import com.example.playlistmaker.domain.interactor.SearchInteractorImpl
 import com.example.playlistmaker.domain.interactor.SettingsInteractor
 import com.example.playlistmaker.domain.interactor.SettingsInteractorImpl
 import com.example.playlistmaker.domain.repository.TracksRepository
+import com.google.gson.Gson
 
 object Creator {
+    //Singleton Gson на всё приложение
+    private val gson: Gson by lazy {
+        Gson()
+    }
 
     private fun provideTracksRepository(): TracksRepository {
         return TracksRepositoryImpl(RetrofitClient.iTunesService)
@@ -27,7 +32,12 @@ object Creator {
 
     fun provideSearchHistoryInteractor(context: Context): SearchHistoryInteractor {
         val prefs = context.getSharedPreferences("history_prefs", Context.MODE_PRIVATE)
-        val storage = SearchHistoryStorage(prefs)
+
+        val storage = SearchHistoryStorage(
+            sharedPrefs = prefs,
+            gson = gson
+        )
+
         val repository = SearchHistoryRepositoryImpl(storage)
         return SearchHistoryInteractorImpl(repository)
     }
