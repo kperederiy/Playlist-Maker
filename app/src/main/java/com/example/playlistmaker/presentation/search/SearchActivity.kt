@@ -85,7 +85,7 @@ class SearchActivity : AppCompatActivity() {
         tracksAdapter.onTrackClick = { track ->
             if (clickDebounce()) {
                 searchHistoryInteractor.saveTrack(track)
-                updateHistory()
+                //updateHistory()
                 openPlayer(track)
             }
         }
@@ -109,14 +109,12 @@ class SearchActivity : AppCompatActivity() {
             onBackPressedDispatcher.onBackPressed()
         }
 
-        inputSearchText.setOnFocusChangeListener { view, hasFocus ->
+        inputSearchText.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus && inputSearchText.text.isEmpty()) {
-                historyTitle.visibility = View.VISIBLE
-                historyRecyclerView.visibility = View.VISIBLE
-                btnClearHistory.visibility = View.VISIBLE
                 updateHistory()
             }
         }
+
 
         inputSearchText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -203,12 +201,13 @@ class SearchActivity : AppCompatActivity() {
         val history = searchHistoryInteractor.getHistory()
         historyAdapter.updateItems(history)
 
-        if (tracksRecyclerView.isGone) tracksRecyclerView.visibility = View.GONE
+        val isHistoryEmpty = history.isEmpty()
 
-        if (historyTitle.isGone) historyTitle.visibility = View.GONE
-        if (historyRecyclerView.isGone) historyRecyclerView.visibility = View.GONE
-        if (btnClearHistory.isGone) btnClearHistory.visibility = View.GONE
+        historyTitle.isVisible = !isHistoryEmpty
+        historyRecyclerView.isVisible = !isHistoryEmpty
+        btnClearHistory.isVisible = !isHistoryEmpty
     }
+
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
