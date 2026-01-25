@@ -9,17 +9,17 @@ class SearchHistoryRepositoryImpl(
 ) : SearchHistoryRepository {
 
     override fun saveTrack(track: Track) {
-        val history = getHistory().toMutableList()
+        val historyDto = storage.get().toMutableList()
 
-        history.removeAll { it.trackId == track.trackId }
-        history.add(0, track)
+        historyDto.removeAll { it.trackId == track.trackId }
 
-        if (history.size > MAX_SIZE) {
-            history.removeAt(history.lastIndex)
+        historyDto.add(0, track.toDto())
+
+        if (historyDto.size > MAX_SIZE) {
+            historyDto.removeAt(historyDto.lastIndex)
         }
 
-        val dtoList = history.map { it.toDto() }
-        storage.save(dtoList)
+        storage.save(historyDto)
     }
 
     override fun getHistory(): List<Track> {

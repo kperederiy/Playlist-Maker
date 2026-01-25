@@ -85,7 +85,6 @@ class SearchActivity : AppCompatActivity() {
         tracksAdapter.onTrackClick = { track ->
             if (clickDebounce()) {
                 searchHistoryInteractor.saveTrack(track)
-                //updateHistory()
                 openPlayer(track)
             }
         }
