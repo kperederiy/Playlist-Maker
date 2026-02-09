@@ -19,12 +19,11 @@ class SearchInteractorImpl(
 
         tracksRepository.searchTracks(
             query = query,
-            callback = { tracks ->
-                if (tracks.isEmpty()) {
-                    onResult(emptyList())
-                } else {
-                    onResult(tracks)
-                }
+            onSuccess = { tracks ->
+                onResult(tracks)
+            },
+            onError = {
+                onError()
             }
         )
     }

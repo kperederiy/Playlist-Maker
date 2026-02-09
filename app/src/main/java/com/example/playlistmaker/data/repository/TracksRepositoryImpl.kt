@@ -14,12 +14,22 @@ class TracksRepositoryImpl(
     private val api: ITunesApi
 ) : TracksRepository {
 
-    override fun searchTracks(query: String, callback: (List<Track>) -> Unit) {
+    override fun searchTracks(
+        query: String,
+        onSuccess: (List<Track>) -> Unit,
+        onError: () -> Unit
+    ) {
         api.searchSongs(query).enqueue(object : Callback<SearchResponseDto> {
+
             override fun onResponse(
                 call: Call<SearchResponseDto>,
                 response: Response<SearchResponseDto>
             ) {
+                if (!response.isSuccessful) {
+                    onError()
+                    return
+                }
+
                 val tracks = response.body()?.results?.map { dto ->
                     Track(
                         trackId = dto.trackId,
@@ -34,13 +44,13 @@ class TracksRepositoryImpl(
                         country = dto.country,
                         previewUrl = dto.previewUrl
                     )
-                } ?: emptyList()
+                }.orEmpty()
 
-                callback(tracks)
+                onSuccess(tracks)
             }
 
             override fun onFailure(call: Call<SearchResponseDto>, t: Throwable) {
-                callback(emptyList())
+                onError()
             }
         })
     }
