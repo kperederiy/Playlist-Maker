@@ -10,8 +10,7 @@ class SearchInteractorImpl(
     override fun searchTracks(
         query: String,
         onResult: (List<Track>) -> Unit,
-        onError: () -> Unit,
-        onNetworkError: () -> Unit
+        onError: () -> Unit
     ) {
         if (query.isBlank()) {
             onResult(emptyList())

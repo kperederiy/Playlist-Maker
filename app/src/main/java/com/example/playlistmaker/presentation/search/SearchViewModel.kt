@@ -15,21 +15,13 @@ class SearchViewModel(
     private val _state = MutableLiveData(SearchScreenState())
     val state: LiveData<SearchScreenState> = _state
 
-    private val _events = MutableLiveData<SearchEvent>()
-    val events: LiveData<SearchEvent> = _events
-
     fun onSearchClicked(query: String) {
         if (query.isBlank()) {
             showHistory()
             return
         }
 
-        _state.value = SearchScreenState(
-            isLoading = true,
-            isHistory = false,
-            isError = false,
-            isNoConnection = false
-        )
+        _state.value = SearchScreenState(isLoading = true)
 
         searchInteractor.searchTracks(
             query = query,
@@ -37,75 +29,30 @@ class SearchViewModel(
                 _state.postValue(
                     SearchScreenState(
                         tracks = tracks,
-                        isHistory = false,
-                        isLoading = false,
-                        isError = false,
-                        isNoConnection = false
+                        isHistory = false
                     )
                 )
             },
             onError = {
                 _state.postValue(
-                    SearchScreenState(
-                        tracks = emptyList(),
-                        isHistory = false,
-                        isLoading = false,
-                        isError = true,
-                        isNoConnection = false
-                    )
-                )
-            },
-            onNetworkError = {
-                _state.postValue(
-                    SearchScreenState(
-                        tracks = emptyList(),
-                        isHistory = false,
-                        isLoading = false,
-                        isError = false,
-                        isNoConnection = true
-                    )
+                    SearchScreenState(isError = true)
                 )
             }
         )
     }
 
 
-    sealed class SearchEvent {
-        data class OpenPlayer(val track: Track) : SearchEvent()
-    }
-
     fun showHistory() {
         val history = historyInteractor.getHistory()
 
         _state.value = SearchScreenState(
             tracks = history,
-            isHistory = true,
-            isLoading = false,
-            isError = false,
-            isNoConnection = false
-        )
-    }
-
-    fun clearHistory() {
-        historyInteractor.clearHistory()
-
-        _state.value = SearchScreenState(
-            tracks = emptyList(),
-            isHistory = true,
-            isLoading = false,
-            isError = false,
-            isNoConnection = false
+            isHistory = true
         )
     }
 
     fun onTrackClicked(track: Track) {
         historyInteractor.saveTrack(track)
-        _events.value = SearchEvent.OpenPlayer(track)
     }
-
-    fun clearEvent() {
-        _events.value = null
-    }
-
 
 }
