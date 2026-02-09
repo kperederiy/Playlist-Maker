@@ -1,7 +1,6 @@
-package com.example.playlistmaker
-import java.io.Serializable
+package com.example.playlistmaker.data.storage
 
-data class Track(
+data class TrackHistoryDto(
     val trackId: Int,
     val trackName: String,
     val artistName: String,
@@ -12,4 +11,4 @@ data class Track(
     val primaryGenreName: String,
     val country: String,
     val previewUrl: String
-) : Serializable
+)

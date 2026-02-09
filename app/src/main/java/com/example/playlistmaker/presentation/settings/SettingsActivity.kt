@@ -1,4 +1,4 @@
-package com.example.playlistmaker
+package com.example.playlistmaker.presentation.settings
 
 import android.content.Intent
 import android.net.Uri
@@ -9,11 +9,20 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import com.example.playlistmaker.presentation.App
+import com.example.playlistmaker.Creator
+import com.example.playlistmaker.R
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textview.MaterialTextView
 
 class SettingsActivity : AppCompatActivity() {
+
+    private val settingsInteractor by lazy {
+        Creator.provideSettingsInteractor(applicationContext)
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
 
@@ -37,26 +46,28 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         val themeSwitch = findViewById<SwitchMaterial>(R.id.themeSwitch)
+        themeSwitch.isChecked = settingsInteractor.isDarkThemeEnabled()
 
-        themeSwitch.isChecked = (applicationContext as App).darkTheme
-
-        themeSwitch.setOnCheckedChangeListener { switcher, checked ->
-            (applicationContext as App).switchTheme(checked)
+        themeSwitch.setOnCheckedChangeListener { _, isChecked ->
+            settingsInteractor.switchTheme(isChecked)
+            (applicationContext as App).applyTheme(isChecked)
         }
+
 
         val buttonShare = findViewById<MaterialTextView>(R.id.share)
         buttonShare.setOnClickListener {
             val shareIntent = Intent().apply {
                 action = Intent.ACTION_SEND
-                putExtra(
-                    Intent.EXTRA_TEXT,
-                    getString(R.string.share_url)
-                )
+                putExtra(Intent.EXTRA_TEXT, getString(R.string.share_url))
                 type = "text/plain"
             }
-            val chooser = Intent.createChooser(shareIntent, getString(R.string.share_text))
+            val chooser = Intent.createChooser(
+                shareIntent,
+                getString(R.string.share_text)
+            )
             startActivity(chooser)
         }
+
 
         val buttonSupport = findViewById<MaterialTextView>(R.id.support)
         buttonSupport.setOnClickListener {
@@ -69,7 +80,6 @@ class SettingsActivity : AppCompatActivity() {
                 putExtra(
                     Intent.EXTRA_SUBJECT,
                     getString(R.string.subject_email)
-
                 )
                 putExtra(
                     Intent.EXTRA_TEXT,
@@ -78,6 +88,7 @@ class SettingsActivity : AppCompatActivity() {
             }
             startActivity(intent)
         }
+
 
         val buttonUserAgreement = findViewById<MaterialTextView>(R.id.user_agreement)
         buttonUserAgreement.setOnClickListener {

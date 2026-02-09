@@ -1,11 +1,6 @@
-package com.example.playlistmaker
+package com.example.playlistmaker.data.network
 
-data class SearchResponse(
-    val resultCount: Int,
-    val results: List<TrackResponse>
-)
-
-data class TrackResponse(
+data class TrackDto(
     val trackId: Int,
     val trackName: String,
     val artistName: String,
@@ -17,4 +12,3 @@ data class TrackResponse(
     val country: String,
     val previewUrl: String
 )
-

@@ -1,4 +1,4 @@
-package com.example.playlistmaker
+package com.example.playlistmaker.presentation.player
 
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -13,6 +13,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import com.bumptech.glide.Glide
+import com.example.playlistmaker.R
+import com.example.playlistmaker.domain.model.Track
 import com.google.android.material.appbar.MaterialToolbar
 
 class AudioPlayerActivity : AppCompatActivity() {
