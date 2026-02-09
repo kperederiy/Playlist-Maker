@@ -4,6 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -18,7 +20,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
-import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.RecyclerView
 import com.example.playlistmaker.Creator
 import com.example.playlistmaker.R
@@ -26,14 +27,12 @@ import com.example.playlistmaker.domain.model.Track
 import com.example.playlistmaker.presentation.adapter.TrackAdapter
 import com.example.playlistmaker.presentation.player.AudioPlayerActivity
 import com.google.android.material.appbar.MaterialToolbar
-import androidx.lifecycle.ViewModelProvider
+import androidx.core.view.isGone
 
-//private const val SEARCH_DEBOUNCE_DELAY = 2000L
+private const val SEARCH_DEBOUNCE_DELAY = 2000L
 private const val CLICK_DEBOUNCE_DELAY = 1000L
 
 class SearchActivity : AppCompatActivity() {
-
-    private lateinit var viewModel: SearchViewModel
     private lateinit var inputSearchText: EditText
     private lateinit var btnClearSearch: ImageView
     private lateinit var tracksRecyclerView: RecyclerView
@@ -44,16 +43,16 @@ class SearchActivity : AppCompatActivity() {
     private val tracks: MutableList<Track> = mutableListOf()
     private val tracksAdapter = TrackAdapter(tracks)
 
-    /*private val searchHistoryInteractor by lazy {
+    private val searchHistoryInteractor by lazy {
         Creator.provideSearchHistoryInteractor(applicationContext)
-    }*/
+    }
     private lateinit var historyTitle: TextView
     private lateinit var historyRecyclerView: RecyclerView
     private lateinit var historyAdapter: TrackAdapter
     private lateinit var btnClearHistory: View
 
     private val searchHandler = Handler(Looper.getMainLooper())
-    //private var searchRunnable: Runnable? = null
+    private var searchRunnable: Runnable? = null
     private lateinit var progressBar: View
     private var isClickAllowed = true
 
@@ -73,18 +72,6 @@ class SearchActivity : AppCompatActivity() {
             insets
         }
 
-        viewModel = ViewModelProvider(
-            this,
-            SearchViewModelFactory(
-                Creator.provideSearchInteractor(),
-                Creator.provideSearchHistoryInteractor(applicationContext)
-            )
-        )[SearchViewModel::class.java]
-
-        viewModel.state.observe(this) { state ->
-            render(state)
-        }
-
         inputSearchText = findViewById(R.id.inputSearchText)
         btnClearSearch = findViewById(R.id.btnClearSearch)
         tracksRecyclerView = findViewById(R.id.Tracks)
@@ -97,10 +84,11 @@ class SearchActivity : AppCompatActivity() {
         tracksRecyclerView.adapter = tracksAdapter
         tracksAdapter.onTrackClick = { track ->
             if (clickDebounce()) {
-                viewModel.onTrackClicked(track)
+                searchHistoryInteractor.saveTrack(track)
                 openPlayer(track)
             }
         }
+
 
         historyTitle = findViewById(R.id.historyTitle)
         historyRecyclerView = findViewById(R.id.historyRecyclerView)
@@ -122,63 +110,101 @@ class SearchActivity : AppCompatActivity() {
 
         inputSearchText.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus && inputSearchText.text.isEmpty()) {
-                viewModel.showHistory()
+                updateHistory()
             }
         }
 
-        /*inputSearchText.addTextChangedListener {
-            btnClearSearch.isVisible = !it.isNullOrEmpty()
-        }*/
-        inputSearchText.doOnTextChanged { text, _, _, _ ->
-            btnClearSearch.isVisible = !text.isNullOrEmpty()
-        }
 
+        inputSearchText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                btnClearSearch.isVisible = !s.isNullOrEmpty()
+                currentText = s.toString()
+
+                searchRunnable?.let {
+                    searchHandler.removeCallbacks(it)
+                }
+
+                if (currentText.isEmpty()) {
+                    tracks.clear()
+                    tracksAdapter.notifyDataSetChanged()
+
+                    tracksRecyclerView.visibility = View.GONE
+                    emptyState.visibility = View.GONE
+                    errorState.visibility = View.GONE
+
+                    historyTitle.visibility = View.VISIBLE
+                    historyRecyclerView.visibility = View.VISIBLE
+                    btnClearHistory.visibility = View.VISIBLE
+                    updateHistory()
+                } else {
+                    historyTitle.visibility = View.GONE
+                    historyRecyclerView.visibility = View.GONE
+                    btnClearHistory.visibility = View.GONE
+
+                    searchRunnable = Runnable {
+                        searchTracks(currentText)
+                    }
+                    searchHandler.postDelayed(searchRunnable!!, SEARCH_DEBOUNCE_DELAY)
+                }
+
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+            }
+        })
 
         inputSearchText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                viewModel.onSearchClicked(inputSearchText.text.toString())
-                hideKeyboard()
+
+                if (currentText.isNotEmpty()) {
+                    searchTracks(currentText)
+                }
+
+                // Скрываем клавиатуру
+                val imm = getSystemService<InputMethodManager>()
+                imm?.hideSoftInputFromWindow(inputSearchText.windowToken, 0)
+
                 true
-            } else false
+            } else {
+                false
+            }
         }
+
 
         btnClearSearch.setOnClickListener {
             inputSearchText.text.clear()
             btnClearSearch.visibility = View.GONE
 
-            hideKeyboard()
+            // Скрываем клавиатуру
+            val imm = getSystemService<InputMethodManager>()
+            imm?.hideSoftInputFromWindow(inputSearchText.windowToken, 0)
         }
 
         btnRetry.setOnClickListener {
-            viewModel.onSearchClicked(inputSearchText.text.toString())
+            if (currentText.isNotEmpty()) {
+                searchTracks(currentText)
+            }
         }
 
         btnClearHistory.setOnClickListener {
-            viewModel.showHistory()
+            searchHistoryInteractor.clearHistory()
+            updateHistory()
         }
 
     }
 
-    private fun render(state: SearchScreenState) {
+    private fun updateHistory() {
+        val history = searchHistoryInteractor.getHistory()
+        historyAdapter.updateItems(history)
 
-        progressBar.isVisible = state.isLoading
+        val isHistoryEmpty = history.isEmpty()
 
-        val hasTracks = state.tracks.isNotEmpty()
-
-        tracksRecyclerView.isVisible = hasTracks
-        tracksAdapter.updateItems(state.tracks)
-
-        historyTitle.isVisible = state.isHistory && hasTracks
-        btnClearHistory.isVisible = state.isHistory && hasTracks
-
-        errorState.isVisible = state.isError
-        emptyState.isVisible =
-            !state.isLoading && !state.isError && !hasTracks
-    }
-
-    private fun hideKeyboard() {
-        val imm = getSystemService<InputMethodManager>()
-        imm?.hideSoftInputFromWindow(inputSearchText.windowToken, 0)
+        historyTitle.isVisible = !isHistoryEmpty
+        historyRecyclerView.isVisible = !isHistoryEmpty
+        btnClearHistory.isVisible = !isHistoryEmpty
     }
 
 
@@ -193,16 +219,65 @@ class SearchActivity : AppCompatActivity() {
         inputSearchText.setText(restoredText)
     }
 
-    /*private fun hideLoading() {
-        progressBar.visibility = View.GONE
-    }*/
+    private val searchInteractor by lazy {
+        Creator.provideSearchInteractor()
+    }
 
-    /*private fun showTracks(tracks: List<Track>) {
+    private fun searchTracks(query: String) {
+        showLoading()
+
+        searchInteractor.searchTracks(
+            query = query,
+            onResult = { tracks ->
+                runOnUiThread {
+                    hideLoading()
+
+                    if (tracks.isEmpty()) {
+                        showEmpty()
+                    } else {
+                        showTracks(tracks)
+                    }
+                }
+            },
+            onError = {
+                runOnUiThread {
+                    hideLoading()
+                    showError()
+                }
+            }
+        )
+    }
+
+    private fun showLoading() {
+        progressBar.visibility = View.VISIBLE
+        tracksRecyclerView.visibility = View.GONE
+        emptyState.visibility = View.GONE
+        errorState.visibility = View.GONE
+    }
+
+    private fun hideLoading() {
+        progressBar.visibility = View.GONE
+    }
+
+    private fun showTracks(tracks: List<Track>) {
         tracksAdapter.updateItems(tracks)
         tracksRecyclerView.visibility = View.VISIBLE
         emptyState.visibility = View.GONE
         errorState.visibility = View.GONE
-    }*/
+    }
+
+    private fun showEmpty() {
+        emptyState.visibility = View.VISIBLE
+        tracksRecyclerView.visibility = View.GONE
+        errorState.visibility = View.GONE
+    }
+
+    private fun showError() {
+        errorState.visibility = View.VISIBLE
+        tracksRecyclerView.visibility = View.GONE
+        emptyState.visibility = View.GONE
+    }
+
 
     private fun openPlayer(track: Track) {
         val intent = Intent(this, AudioPlayerActivity::class.java)
@@ -225,7 +300,8 @@ class SearchActivity : AppCompatActivity() {
         super.onDestroy()
         searchHandler.removeCallbacksAndMessages(null)
     }
-}
 
+
+}
 
 
