@@ -6,6 +6,7 @@ interface SearchInteractor {
     fun searchTracks(
         query: String,
         onResult: (List<Track>) -> Unit,
-        onError: () -> Unit
+        onError: () -> Unit,
+        onNetworkError: () -> Unit
     )
 }

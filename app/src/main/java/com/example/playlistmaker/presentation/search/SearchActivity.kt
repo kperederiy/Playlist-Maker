@@ -28,7 +28,7 @@ import com.example.playlistmaker.presentation.player.AudioPlayerActivity
 import com.google.android.material.appbar.MaterialToolbar
 import androidx.lifecycle.ViewModelProvider
 
-//private const val SEARCH_DEBOUNCE_DELAY = 2000L
+private const val SEARCH_DEBOUNCE_DELAY = 2000L
 private const val CLICK_DEBOUNCE_DELAY = 1000L
 
 class SearchActivity : AppCompatActivity() {
@@ -40,7 +40,7 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var emptyState: LinearLayout
     private lateinit var errorState: LinearLayout
     private lateinit var btnRetry: View
-    private var currentText: String = ""
+    //private var currentText: String = ""
     private val tracks: MutableList<Track> = mutableListOf()
     private val tracksAdapter = TrackAdapter(tracks)
 
@@ -53,7 +53,7 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var btnClearHistory: View
 
     private val searchHandler = Handler(Looper.getMainLooper())
-    //private var searchRunnable: Runnable? = null
+    private var searchRunnable: Runnable? = null
     private lateinit var progressBar: View
     private var isClickAllowed = true
 
@@ -84,6 +84,16 @@ class SearchActivity : AppCompatActivity() {
         viewModel.state.observe(this) { state ->
             render(state)
         }
+        viewModel.events.observe(this) { event ->
+            event?.let {
+                when (it) {
+                    is SearchViewModel.SearchEvent.OpenPlayer -> openPlayer(it.track)
+                }
+                viewModel.clearEvent()
+            }
+        }
+
+
 
         inputSearchText = findViewById(R.id.inputSearchText)
         btnClearSearch = findViewById(R.id.btnClearSearch)
@@ -98,9 +108,9 @@ class SearchActivity : AppCompatActivity() {
         tracksAdapter.onTrackClick = { track ->
             if (clickDebounce()) {
                 viewModel.onTrackClicked(track)
-                openPlayer(track)
             }
         }
+
 
         historyTitle = findViewById(R.id.historyTitle)
         historyRecyclerView = findViewById(R.id.historyRecyclerView)
@@ -131,8 +141,23 @@ class SearchActivity : AppCompatActivity() {
         }*/
         inputSearchText.doOnTextChanged { text, _, _, _ ->
             btnClearSearch.isVisible = !text.isNullOrEmpty()
-        }
 
+            searchRunnable?.let { searchHandler.removeCallbacks(it) }
+
+            val query = text?.toString().orEmpty()
+
+            if (query.isBlank()) {
+                //не запускать debounce-поиск
+                viewModel.showHistory()
+                return@doOnTextChanged
+            }
+
+            searchRunnable = Runnable {
+                viewModel.onSearchClicked(query)
+            }
+
+            searchHandler.postDelayed(searchRunnable!!, SEARCH_DEBOUNCE_DELAY)
+        }
 
         inputSearchText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -144,9 +169,10 @@ class SearchActivity : AppCompatActivity() {
 
         btnClearSearch.setOnClickListener {
             inputSearchText.text.clear()
-            btnClearSearch.visibility = View.GONE
-
+            btnClearSearch.isVisible = false
             hideKeyboard()
+
+            viewModel.showHistory()
         }
 
         btnRetry.setOnClickListener {
@@ -154,27 +180,35 @@ class SearchActivity : AppCompatActivity() {
         }
 
         btnClearHistory.setOnClickListener {
-            viewModel.showHistory()
+            viewModel.clearHistory()
         }
 
     }
 
     private fun render(state: SearchScreenState) {
 
-        progressBar.isVisible = state.isLoading
-
         val hasTracks = state.tracks.isNotEmpty()
 
-        tracksRecyclerView.isVisible = hasTracks
-        tracksAdapter.updateItems(state.tracks)
+        progressBar.isVisible = state.isLoading
+
+        tracksRecyclerView.isVisible =
+            hasTracks &&
+                    !state.isError &&
+                    !state.isNoConnection
 
         historyTitle.isVisible = state.isHistory && hasTracks
         btnClearHistory.isVisible = state.isHistory && hasTracks
 
-        errorState.isVisible = state.isError
+        errorState.isVisible = state.isNoConnection
+
         emptyState.isVisible =
-            !state.isLoading && !state.isError && !hasTracks
+            !state.isLoading &&
+                    !state.isError &&
+                    !state.isNoConnection &&
+                    !state.isHistory &&
+                    !hasTracks
     }
+
 
     private fun hideKeyboard() {
         val imm = getSystemService<InputMethodManager>()
@@ -182,16 +216,16 @@ class SearchActivity : AppCompatActivity() {
     }
 
 
-    override fun onSaveInstanceState(outState: Bundle) {
+    /*override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString("search_text", currentText)
-    }
+    }*/
 
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+    /*override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
         val restoredText = savedInstanceState.getString("search_text", "")
         inputSearchText.setText(restoredText)
-    }
+    }*/
 
     /*private fun hideLoading() {
         progressBar.visibility = View.GONE
