@@ -4,8 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -14,6 +12,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.getSystemService
 import androidx.core.view.ViewCompat
@@ -27,9 +26,8 @@ import com.example.playlistmaker.domain.model.Track
 import com.example.playlistmaker.presentation.adapter.TrackAdapter
 import com.example.playlistmaker.presentation.player.AudioPlayerActivity
 import com.google.android.material.appbar.MaterialToolbar
-import androidx.core.view.isGone
+import androidx.core.widget.doOnTextChanged
 
-private const val SEARCH_DEBOUNCE_DELAY = 2000L
 private const val CLICK_DEBOUNCE_DELAY = 1000L
 
 class SearchActivity : AppCompatActivity() {
@@ -52,9 +50,15 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var btnClearHistory: View
 
     private val searchHandler = Handler(Looper.getMainLooper())
-    private var searchRunnable: Runnable? = null
     private lateinit var progressBar: View
     private var isClickAllowed = true
+
+    private val viewModel by viewModels<SearchViewModel> {
+        SearchViewModelFactory(
+            Creator.provideSearchInteractor(),
+            Creator.provideSearchHistoryInteractor(applicationContext)
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -80,15 +84,15 @@ class SearchActivity : AppCompatActivity() {
         btnRetry = findViewById(R.id.btnRetry)
         progressBar = findViewById(R.id.progressBar)
 
-
-        tracksRecyclerView.adapter = tracksAdapter
-        tracksAdapter.onTrackClick = { track ->
-            if (clickDebounce()) {
-                searchHistoryInteractor.saveTrack(track)
-                openPlayer(track)
-            }
+        viewModel.observeState().observe(this) { state ->
+            render(state)
         }
 
+        tracksRecyclerView.adapter = tracksAdapter
+        tracksAdapter.onTrackClick = {
+            viewModel.onTrackClicked(it)
+            openPlayer(it)
+        }
 
         historyTitle = findViewById(R.id.historyTitle)
         historyRecyclerView = findViewById(R.id.historyRecyclerView)
@@ -102,7 +106,6 @@ class SearchActivity : AppCompatActivity() {
             }
         }
 
-
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
         toolbar.setNavigationOnClickListener {
             onBackPressedDispatcher.onBackPressed()
@@ -114,47 +117,9 @@ class SearchActivity : AppCompatActivity() {
             }
         }
 
-
-        inputSearchText.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                btnClearSearch.isVisible = !s.isNullOrEmpty()
-                currentText = s.toString()
-
-                searchRunnable?.let {
-                    searchHandler.removeCallbacks(it)
-                }
-
-                if (currentText.isEmpty()) {
-                    tracks.clear()
-                    tracksAdapter.notifyDataSetChanged()
-
-                    tracksRecyclerView.visibility = View.GONE
-                    emptyState.visibility = View.GONE
-                    errorState.visibility = View.GONE
-
-                    historyTitle.visibility = View.VISIBLE
-                    historyRecyclerView.visibility = View.VISIBLE
-                    btnClearHistory.visibility = View.VISIBLE
-                    updateHistory()
-                } else {
-                    historyTitle.visibility = View.GONE
-                    historyRecyclerView.visibility = View.GONE
-                    btnClearHistory.visibility = View.GONE
-
-                    searchRunnable = Runnable {
-                        searchTracks(currentText)
-                    }
-                    searchHandler.postDelayed(searchRunnable!!, SEARCH_DEBOUNCE_DELAY)
-                }
-
-            }
-
-            override fun afterTextChanged(s: Editable?) {
-            }
-        })
+        inputSearchText.doOnTextChanged { text, _, _, _ ->
+            viewModel.onSearchTextChanged(text.toString())
+        }
 
         inputSearchText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -173,7 +138,6 @@ class SearchActivity : AppCompatActivity() {
             }
         }
 
-
         btnClearSearch.setOnClickListener {
             inputSearchText.text.clear()
             btnClearSearch.visibility = View.GONE
@@ -184,16 +148,29 @@ class SearchActivity : AppCompatActivity() {
         }
 
         btnRetry.setOnClickListener {
-            if (currentText.isNotEmpty()) {
-                searchTracks(currentText)
-            }
+            viewModel.onRetry()
         }
 
         btnClearHistory.setOnClickListener {
-            searchHistoryInteractor.clearHistory()
-            updateHistory()
+            viewModel.onClearHistory()
         }
 
+    }
+
+    private fun render(state: SearchState) {
+        progressBar.isVisible = state.isLoading
+        errorState.isVisible = state.isError
+        emptyState.isVisible = state.isEmpty
+
+        tracksRecyclerView.isVisible = state.tracks.isNotEmpty()
+        historyTitle.isVisible = state.showHistory
+        historyRecyclerView.isVisible = state.showHistory
+        btnClearHistory.isVisible = state.showHistory
+
+        btnClearSearch.isVisible = state.showClearButton
+
+        tracksAdapter.updateItems(state.tracks)
+        historyAdapter.updateItems(state.history)
     }
 
     private fun updateHistory() {
@@ -206,7 +183,6 @@ class SearchActivity : AppCompatActivity() {
         historyRecyclerView.isVisible = !isHistoryEmpty
         btnClearHistory.isVisible = !isHistoryEmpty
     }
-
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
@@ -278,7 +254,6 @@ class SearchActivity : AppCompatActivity() {
         emptyState.visibility = View.GONE
     }
 
-
     private fun openPlayer(track: Track) {
         val intent = Intent(this, AudioPlayerActivity::class.java)
         intent.putExtra("track", track)
@@ -300,7 +275,6 @@ class SearchActivity : AppCompatActivity() {
         super.onDestroy()
         searchHandler.removeCallbacksAndMessages(null)
     }
-
 
 }
 
