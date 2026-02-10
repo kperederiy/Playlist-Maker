@@ -9,6 +9,7 @@ import com.bumptech.glide.Glide
 import com.example.playlistmaker.Creator
 import com.example.playlistmaker.R
 import com.example.playlistmaker.domain.model.Track
+import com.google.android.material.appbar.MaterialToolbar
 
 class AudioPlayerActivity : AppCompatActivity() {
 
@@ -61,6 +62,36 @@ class AudioPlayerActivity : AppCompatActivity() {
         }
 
         viewModel.prepare(track.previewUrl)
+
+        val btnPlaylist = findViewById<ImageView>(R.id.btnPlaylist)
+
+        var isInPlaylist = false
+        btnPlaylist.setOnClickListener {
+            isInPlaylist = !isInPlaylist
+            if (isInPlaylist) {
+                btnPlaylist.setImageResource(R.drawable.ic_del_playlist_51)
+                // здесь можно добавить логику добавления трека в плейлист
+            } else {
+                btnPlaylist.setImageResource(R.drawable.ic_add_playlist_51)
+                // здесь можно добавить логику удаления трека из плейлиста
+            }
+        }
+        val btnLike = findViewById<ImageView>(R.id.btnLike)
+        var isLiked = false
+        btnLike.setOnClickListener {
+            isLiked = !isLiked
+            if (isLiked) {
+                btnLike.setImageResource(R.drawable.ic_del_favorite_51)
+                // здесь можно добавить логику для сохранения лайка
+            } else {
+                btnLike.setImageResource(R.drawable.ic_add_favorite_51)
+                // здесь можно добавить логику для удаления лайка
+            }
+        }
+        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
+        toolbar.setNavigationOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
     }
 }
 fun Track.getCoverArtwork() = artworkUrl100.replaceAfterLast('/', "512x512bb.jpg")
