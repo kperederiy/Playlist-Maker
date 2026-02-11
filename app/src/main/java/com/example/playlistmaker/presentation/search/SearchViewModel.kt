@@ -17,6 +17,7 @@ class SearchViewModel(
     private val stateLiveData = MutableLiveData(SearchState())
     fun observeState(): LiveData<SearchState> = stateLiveData
 
+    private var isClickAllowed = true
     private val handler = Handler(Looper.getMainLooper())
     private var searchRunnable: Runnable? = null
 
@@ -27,9 +28,16 @@ class SearchViewModel(
 
         searchRunnable?.let { handler.removeCallbacks(it) }
 
+        val currentState = stateLiveData.value ?: SearchState()
+
         if (text.isEmpty()) {
             val history = historyInteractor.getHistory()
-            stateLiveData.value = SearchState(
+
+            stateLiveData.value = currentState.copy(
+                tracks = emptyList(),
+                isLoading = false,
+                isError = false,
+                isEmpty = false,
                 history = history,
                 showHistory = history.isNotEmpty(),
                 showClearButton = false
@@ -37,19 +45,22 @@ class SearchViewModel(
             return
         }
 
-        stateLiveData.value = stateLiveData.value?.copy(
-            showClearButton = true
+        stateLiveData.value = currentState.copy(
+            showClearButton = true,
+            showHistory = false
         )
 
         searchRunnable = Runnable {
             search(text)
         }
+
         handler.postDelayed(searchRunnable!!, 2000L)
     }
 
+    private fun search(query: String) {
+        val currentState = stateLiveData.value ?: SearchState()
 
-    fun search(query: String) {
-        stateLiveData.value = stateLiveData.value?.copy(
+        stateLiveData.value = currentState.copy(
             isLoading = true,
             isError = false,
             isEmpty = false,
@@ -71,7 +82,8 @@ class SearchViewModel(
                     stateLiveData.postValue(
                         stateLiveData.value?.copy(
                             isLoading = false,
-                            tracks = tracks
+                            tracks = tracks,
+                            isEmpty = false
                         )
                     )
                 }
@@ -87,12 +99,23 @@ class SearchViewModel(
         )
     }
 
-    fun onTrackClicked(track: Track) {
+    fun onTrackClicked(track: Track): Boolean {
+        if (!isClickAllowed) return false
+
+        isClickAllowed = false
+        handler.postDelayed(
+            { isClickAllowed = true },
+            1000L
+        )
+
         historyInteractor.saveTrack(track)
+        return true
     }
+
 
     fun onClearHistory() {
         historyInteractor.clearHistory()
+
         stateLiveData.value = stateLiveData.value?.copy(
             history = emptyList(),
             showHistory = false
