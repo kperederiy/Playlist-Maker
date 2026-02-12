@@ -1,6 +1,6 @@
 package com.example.playlistmaker.data.repository
 
-import com.example.playlistmaker.data.storage.TrackHistoryDto
+import com.example.playlistmaker.data.dto.TrackHistoryDto
 import com.example.playlistmaker.domain.model.Track
 
 fun Track.toDto() = TrackHistoryDto(

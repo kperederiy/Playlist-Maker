@@ -1,4 +1,4 @@
-package com.example.playlistmaker.data.storage
+package com.example.playlistmaker.data.dto
 
 data class TrackHistoryDto(
     val trackId: Int,
