@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.lifecycle.ViewModelProvider
 import com.example.playlistmaker.presentation.App
 import com.example.playlistmaker.Creator
 import com.example.playlistmaker.R
@@ -18,10 +19,7 @@ import com.google.android.material.textview.MaterialTextView
 
 class SettingsActivity : AppCompatActivity() {
 
-    private val settingsInteractor by lazy {
-        Creator.provideSettingsInteractor(applicationContext)
-    }
-
+    private lateinit var viewModel: SettingsViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -39,62 +37,75 @@ class SettingsActivity : AppCompatActivity() {
             insets
         }
 
-
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
         toolbar.setNavigationOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
 
-        val themeSwitch = findViewById<SwitchMaterial>(R.id.themeSwitch)
-        themeSwitch.isChecked = settingsInteractor.isDarkThemeEnabled()
+        val settingsInteractor = Creator.provideSettingsInteractor(applicationContext)
+        val factory = SettingsViewModelFactory(settingsInteractor)
 
-        themeSwitch.setOnCheckedChangeListener { _, isChecked ->
-            settingsInteractor.switchTheme(isChecked)
-            (applicationContext as App).applyTheme(isChecked)
+        viewModel = ViewModelProvider(this, factory)[SettingsViewModel::class.java]
+
+        val themeSwitch = findViewById<SwitchMaterial>(R.id.themeSwitch)
+
+        viewModel.state.observe(this) { state ->
+
+            themeSwitch.isChecked = state.isDarkThemeEnabled
+
+            if (state.shouldShareApp) {
+                val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                    putExtra(Intent.EXTRA_TEXT, getString(R.string.share_url))
+                    type = "text/plain"
+                }
+                startActivity(
+                    Intent.createChooser(
+                        shareIntent,
+                        getString(R.string.share_text)
+                    )
+                )
+                viewModel.onActionHandled()
+            }
+
+            if (state.shouldOpenSupport) {
+                val intent = Intent(Intent.ACTION_SENDTO).apply {
+                    data = Uri.parse("mailto:")
+                    putExtra(Intent.EXTRA_EMAIL, arrayOf(getString(R.string.email)))
+                    putExtra(Intent.EXTRA_SUBJECT, getString(R.string.subject_email))
+                    putExtra(Intent.EXTRA_TEXT, getString(R.string.text_email))
+                }
+                startActivity(intent)
+                viewModel.onActionHandled()
+            }
+
+            if (state.shouldOpenUserAgreement) {
+                startActivity(
+                    Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse(getString(R.string.user_agreement_url))
+                    )
+                )
+                viewModel.onActionHandled()
+            }
         }
 
+        themeSwitch.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.onThemeSwitchClicked(isChecked)
+        }
 
         val buttonShare = findViewById<MaterialTextView>(R.id.share)
         buttonShare.setOnClickListener {
-            val shareIntent = Intent().apply {
-                action = Intent.ACTION_SEND
-                putExtra(Intent.EXTRA_TEXT, getString(R.string.share_url))
-                type = "text/plain"
-            }
-            val chooser = Intent.createChooser(
-                shareIntent,
-                getString(R.string.share_text)
-            )
-            startActivity(chooser)
+            viewModel.onShareClicked()
         }
-
 
         val buttonSupport = findViewById<MaterialTextView>(R.id.support)
         buttonSupport.setOnClickListener {
-            val intent = Intent(Intent.ACTION_SENDTO).apply {
-                data = Uri.parse("mailto:")
-                putExtra(
-                    Intent.EXTRA_EMAIL,
-                    arrayOf(getString(R.string.email))
-                )
-                putExtra(
-                    Intent.EXTRA_SUBJECT,
-                    getString(R.string.subject_email)
-                )
-                putExtra(
-                    Intent.EXTRA_TEXT,
-                    getString(R.string.text_email)
-                )
-            }
-            startActivity(intent)
+            viewModel.onSupportClicked()
         }
-
 
         val buttonUserAgreement = findViewById<MaterialTextView>(R.id.user_agreement)
         buttonUserAgreement.setOnClickListener {
-            val intent =
-                Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.user_agreement_url)))
-            startActivity(intent)
+            viewModel.onUserAgreementClicked()
         }
 
     }

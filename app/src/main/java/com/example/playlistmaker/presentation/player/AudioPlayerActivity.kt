@@ -1,46 +1,25 @@
 package com.example.playlistmaker.presentation.player
 
-import android.media.MediaPlayer
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
+import com.example.playlistmaker.Creator
 import com.example.playlistmaker.R
 import com.example.playlistmaker.domain.model.Track
 import com.google.android.material.appbar.MaterialToolbar
 
 class AudioPlayerActivity : AppCompatActivity() {
-    private var playerState = STATE_DEFAULT
-    private lateinit var btnPlay: ImageView
-    private var mediaPlayer = MediaPlayer()
-    private lateinit var durationTextView: TextView
-    private val handler = Handler(Looper.getMainLooper())
-    private val updateProgressRunnable = object : Runnable {
-        override fun run() {
-            if (playerState == STATE_PLAYING) {
-                val currentPosition = mediaPlayer.currentPosition
-                durationTextView.text = formatTime(currentPosition)
-                handler.postDelayed(this, UPDATE_INTERVAL_MS)
-            }
-        }
-    }
-    private fun formatTime(millis: Int): String {
-        val minutes = millis / 1000 / 60
-        val seconds = millis / 1000 % 60
-        return String.format("%02d:%02d", minutes, seconds)
-    }
+
+    private lateinit var viewModel: AudioPlayerViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_audio_player)
 
@@ -54,11 +33,6 @@ class AudioPlayerActivity : AppCompatActivity() {
             insets
         }
 
-        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
-        toolbar.setNavigationOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
-        }
-
         val track = intent.getSerializableExtra("track") as Track
 
         val cover = findViewById<ImageView>(R.id.cover)
@@ -69,6 +43,8 @@ class AudioPlayerActivity : AppCompatActivity() {
         val genre = findViewById<TextView>(R.id.primaryGenreName)
         val country = findViewById<TextView>(R.id.country)
         val releaseDate = findViewById<TextView>(R.id.releaseDate)
+        val btnPlay = findViewById<ImageView>(R.id.btnPlay)
+        val durationTextView = findViewById<TextView>(R.id.duration)
 
         Glide.with(this).load(track.getCoverArtwork()).into(cover)
         trackName.text = track.trackName
@@ -79,27 +55,27 @@ class AudioPlayerActivity : AppCompatActivity() {
         country.text = track.country
         releaseDate.text = track.releaseDate.take(4)
 
-        btnPlay = findViewById(R.id.btnPlay)
-        preparePlayer(track.previewUrl)
+        viewModel = ViewModelProvider(
+            this,
+            Creator.provideAudioPlayerViewModelFactory()
+        )[AudioPlayerViewModel::class.java]
+
+        viewModel.state.observe(this) { state ->
+            btnPlay.isEnabled = state.isPlayButtonEnabled
+            durationTextView.text = state.currentTime
+            btnPlay.setImageResource(
+                if (state.isPlaying)
+                    R.drawable.ic_pause_100
+                else
+                    R.drawable.ic_play_100
+            )
+        }
 
         btnPlay.setOnClickListener {
-            playbackControl()
+            viewModel.onPlayClicked()
         }
-        durationTextView = findViewById(R.id.duration)
-        durationTextView.text = formatTime(0)
 
-        val btnLike = findViewById<ImageView>(R.id.btnLike)
-        var isLiked = false
-        btnLike.setOnClickListener {
-            isLiked = !isLiked
-            if (isLiked) {
-                btnLike.setImageResource(R.drawable.ic_del_favorite_51)
-                // здесь можно добавить логику для сохранения лайка
-            } else {
-                btnLike.setImageResource(R.drawable.ic_add_favorite_51)
-                // здесь можно добавить логику для удаления лайка
-            }
-        }
+        viewModel.prepare(track.previewUrl)
 
         val btnPlaylist = findViewById<ImageView>(R.id.btnPlaylist)
 
@@ -114,68 +90,22 @@ class AudioPlayerActivity : AppCompatActivity() {
                 // здесь можно добавить логику удаления трека из плейлиста
             }
         }
-    }
-    override fun onPause() {
-        super.onPause()
-        pausePlayer()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        mediaPlayer.release()
-    }
-
-    // ---------- ЛОГИКА УПРАВЛЕНИЯ ----------
-
-    private fun playbackControl() {
-        when (playerState) {
-            STATE_PLAYING -> pausePlayer()
-            STATE_PREPARED, STATE_PAUSED -> startPlayer()
+        val btnLike = findViewById<ImageView>(R.id.btnLike)
+        var isLiked = false
+        btnLike.setOnClickListener {
+            isLiked = !isLiked
+            if (isLiked) {
+                btnLike.setImageResource(R.drawable.ic_del_favorite_51)
+                // здесь можно добавить логику для сохранения лайка
+            } else {
+                btnLike.setImageResource(R.drawable.ic_add_favorite_51)
+                // здесь можно добавить логику для удаления лайка
+            }
         }
-    }
-
-    // ---------- ИНИЦИАЛИЗАЦИЯ ----------
-
-    private fun preparePlayer(previewUrl: String) {
-        mediaPlayer.setDataSource(previewUrl)
-        mediaPlayer.prepareAsync()
-
-        mediaPlayer.setOnPreparedListener {
-            playerState = STATE_PREPARED
-            btnPlay.isEnabled = true
+        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
+        toolbar.setNavigationOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
         }
-
-        mediaPlayer.setOnCompletionListener {
-            handler.removeCallbacks(updateProgressRunnable)
-            playerState = STATE_PREPARED
-            btnPlay.setImageResource(R.drawable.ic_play_100)
-            durationTextView.text = formatTime(0)
-        }
-    }
-
-    // ---------- УПРАВЛЕНИЕ ----------
-
-    private fun startPlayer() {
-        mediaPlayer.start()
-        btnPlay.setImageResource(R.drawable.ic_pause_100)
-        playerState = STATE_PLAYING
-        handler.post(updateProgressRunnable)
-    }
-
-    private fun pausePlayer() {
-        if (playerState == STATE_PLAYING) {
-            mediaPlayer.pause()
-            handler.removeCallbacks(updateProgressRunnable)
-        }
-        btnPlay.setImageResource(R.drawable.ic_play_100)
-        playerState = STATE_PAUSED
-    }
-    companion object {
-        private const val STATE_DEFAULT = 0
-        private const val STATE_PREPARED = 1
-        private const val STATE_PLAYING = 2
-        private const val STATE_PAUSED = 3
-        private const val UPDATE_INTERVAL_MS = 300L
     }
 }
 fun Track.getCoverArtwork() = artworkUrl100.replaceAfterLast('/', "512x512bb.jpg")

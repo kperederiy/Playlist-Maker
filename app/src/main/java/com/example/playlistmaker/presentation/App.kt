@@ -1,26 +1,19 @@
 package com.example.playlistmaker.presentation
 
 import android.app.Application
-import android.content.res.Configuration
-import androidx.appcompat.app.AppCompatDelegate
+import com.example.playlistmaker.data.repository.ThemeManager
+import com.example.playlistmaker.data.storage.SettingsStorage
 
 class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        applyTheme(isSystemInDarkTheme())
-    }
 
-    fun applyTheme(isDark: Boolean) {
-        AppCompatDelegate.setDefaultNightMode(
-            if (isDark)
-                AppCompatDelegate.MODE_NIGHT_YES
-            else
-                AppCompatDelegate.MODE_NIGHT_NO
-        )
-    }
+        val prefs = getSharedPreferences("settings", MODE_PRIVATE)
+        val storage = SettingsStorage(prefs)
+        val themeManager = ThemeManager(this)
 
-    private fun isSystemInDarkTheme(): Boolean =
-        resources.configuration.uiMode and
-                Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+        val isDark = storage.isDarkThemeEnabled()
+        themeManager.applyTheme(isDark)
+    }
 }

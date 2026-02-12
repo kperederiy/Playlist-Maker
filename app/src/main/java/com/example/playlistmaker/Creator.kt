@@ -1,12 +1,16 @@
 package com.example.playlistmaker
 
 import android.content.Context
+import android.media.MediaPlayer
 import com.example.playlistmaker.data.network.RetrofitClient
+import com.example.playlistmaker.data.repository.AudioPlayerRepositoryImpl
 import com.example.playlistmaker.data.repository.SearchHistoryRepositoryImpl
 import com.example.playlistmaker.data.repository.SettingsRepositoryImpl
+import com.example.playlistmaker.data.repository.ThemeManager
 import com.example.playlistmaker.data.repository.TracksRepositoryImpl
 import com.example.playlistmaker.data.storage.SearchHistoryStorage
 import com.example.playlistmaker.data.storage.SettingsStorage
+import com.example.playlistmaker.domain.interactor.AudioPlayerInteractorImpl
 import com.example.playlistmaker.domain.interactor.SearchHistoryInteractor
 import com.example.playlistmaker.domain.interactor.SearchHistoryInteractorImpl
 import com.example.playlistmaker.domain.interactor.SearchInteractor
@@ -14,6 +18,7 @@ import com.example.playlistmaker.domain.interactor.SearchInteractorImpl
 import com.example.playlistmaker.domain.interactor.SettingsInteractor
 import com.example.playlistmaker.domain.interactor.SettingsInteractorImpl
 import com.example.playlistmaker.domain.repository.TracksRepository
+import com.example.playlistmaker.presentation.player.AudioPlayerViewModelFactory
 import com.google.gson.Gson
 
 object Creator {
@@ -44,10 +49,20 @@ object Creator {
 
     fun provideSettingsInteractor(context: Context): SettingsInteractor {
         val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+
         val storage = SettingsStorage(prefs)
-        val repository = SettingsRepositoryImpl(storage)
+        val themeManager = ThemeManager(context)
+
+        val repository = SettingsRepositoryImpl(storage, themeManager)
         return SettingsInteractorImpl(repository)
     }
 
+
+    fun provideAudioPlayerViewModelFactory(): AudioPlayerViewModelFactory {
+        val mediaPlayer = MediaPlayer()
+        val repository = AudioPlayerRepositoryImpl(mediaPlayer)
+        val interactor = AudioPlayerInteractorImpl(repository)
+        return AudioPlayerViewModelFactory(interactor)
+    }
 }
 
