@@ -6,6 +6,7 @@ import com.example.playlistmaker.data.network.RetrofitClient
 import com.example.playlistmaker.data.repository.AudioPlayerRepositoryImpl
 import com.example.playlistmaker.data.repository.SearchHistoryRepositoryImpl
 import com.example.playlistmaker.data.repository.SettingsRepositoryImpl
+import com.example.playlistmaker.data.repository.ThemeManager
 import com.example.playlistmaker.data.repository.TracksRepositoryImpl
 import com.example.playlistmaker.data.storage.SearchHistoryStorage
 import com.example.playlistmaker.data.storage.SettingsStorage
@@ -48,10 +49,14 @@ object Creator {
 
     fun provideSettingsInteractor(context: Context): SettingsInteractor {
         val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+
         val storage = SettingsStorage(prefs)
-        val repository = SettingsRepositoryImpl(storage)
+        val themeManager = ThemeManager(context)
+
+        val repository = SettingsRepositoryImpl(storage, themeManager)
         return SettingsInteractorImpl(repository)
     }
+
 
     fun provideAudioPlayerViewModelFactory(): AudioPlayerViewModelFactory {
         val mediaPlayer = MediaPlayer()

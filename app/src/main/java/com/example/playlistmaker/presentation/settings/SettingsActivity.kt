@@ -53,11 +53,6 @@ class SettingsActivity : AppCompatActivity() {
 
             themeSwitch.isChecked = state.isDarkThemeEnabled
 
-            if (state.shouldApplyTheme) {
-                (applicationContext as App).applyTheme(state.isDarkThemeEnabled)
-                viewModel.onThemeApplied()
-            }
-
             if (state.shouldShareApp) {
                 val shareIntent = Intent(Intent.ACTION_SEND).apply {
                     putExtra(Intent.EXTRA_TEXT, getString(R.string.share_url))
