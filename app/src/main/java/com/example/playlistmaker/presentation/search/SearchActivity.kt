@@ -101,6 +101,12 @@ class SearchActivity : AppCompatActivity() {
             onBackPressedDispatcher.onBackPressed()
         }
 
+        inputSearchText.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus && inputSearchText.text.isNullOrEmpty()) {
+                viewModel.onSearchFieldFocused()
+            }
+        }
+
         inputSearchText.doOnTextChanged { text, _, _, _ ->
             currentText = text.toString()
             viewModel.onSearchTextChanged(currentText)

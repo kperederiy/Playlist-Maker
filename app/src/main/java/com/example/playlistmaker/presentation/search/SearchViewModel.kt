@@ -99,6 +99,25 @@ class SearchViewModel(
         )
     }
 
+    fun onSearchFieldFocused() {
+        val currentState = stateLiveData.value ?: SearchState()
+
+        // Показываем историю только если текст пустой
+        if (lastQuery.isEmpty()) {
+            val history = historyInteractor.getHistory()
+
+            stateLiveData.value = currentState.copy(
+                tracks = emptyList(),
+                isLoading = false,
+                isError = false,
+                isEmpty = false,
+                history = history,
+                showHistory = history.isNotEmpty(),
+                showClearButton = false
+            )
+        }
+    }
+
     fun onTrackClicked(track: Track): Boolean {
         if (!isClickAllowed) return false
 
@@ -111,7 +130,6 @@ class SearchViewModel(
         historyInteractor.saveTrack(track)
         return true
     }
-
 
     fun onClearHistory() {
         historyInteractor.clearHistory()
