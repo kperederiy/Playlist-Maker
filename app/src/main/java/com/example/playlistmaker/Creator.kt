@@ -1,6 +1,7 @@
 package com.example.playlistmaker
 
 import android.content.Context
+import android.media.MediaPlayer
 import com.example.playlistmaker.data.network.RetrofitClient
 import com.example.playlistmaker.data.repository.AudioPlayerRepositoryImpl
 import com.example.playlistmaker.data.repository.SearchHistoryRepositoryImpl
@@ -53,10 +54,10 @@ object Creator {
     }
 
     fun provideAudioPlayerViewModelFactory(): AudioPlayerViewModelFactory {
-        val repository = AudioPlayerRepositoryImpl()
+        val mediaPlayer = MediaPlayer()
+        val repository = AudioPlayerRepositoryImpl(mediaPlayer)
         val interactor = AudioPlayerInteractorImpl(repository)
         return AudioPlayerViewModelFactory(interactor)
     }
-
 }
 
