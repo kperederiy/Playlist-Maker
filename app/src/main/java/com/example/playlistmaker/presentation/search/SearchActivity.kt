@@ -10,7 +10,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.getSystemService
 import androidx.core.view.ViewCompat
@@ -18,13 +17,13 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.RecyclerView
-import com.example.playlistmaker.Creator
 import com.example.playlistmaker.R
 import com.example.playlistmaker.domain.model.Track
 import com.example.playlistmaker.presentation.adapter.TrackAdapter
 import com.example.playlistmaker.presentation.player.AudioPlayerActivity
 import com.google.android.material.appbar.MaterialToolbar
 import androidx.core.widget.doOnTextChanged
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SearchActivity : AppCompatActivity() {
     private lateinit var inputSearchText: EditText
@@ -44,12 +43,8 @@ class SearchActivity : AppCompatActivity() {
 
     private var currentText: String = ""
 
-    private val viewModel by viewModels<SearchViewModel> {
-        SearchViewModelFactory(
-            Creator.provideSearchInteractor(),
-            Creator.provideSearchHistoryInteractor(applicationContext)
-        )
-    }
+    private val viewModel: SearchViewModel by viewModel()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
