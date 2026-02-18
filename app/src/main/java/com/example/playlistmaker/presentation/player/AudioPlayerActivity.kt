@@ -8,16 +8,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
-import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
-import com.example.playlistmaker.Creator
 import com.example.playlistmaker.R
 import com.example.playlistmaker.domain.model.Track
 import com.google.android.material.appbar.MaterialToolbar
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class AudioPlayerActivity : AppCompatActivity() {
 
-    private lateinit var viewModel: AudioPlayerViewModel
+    private val viewModel: AudioPlayerViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,11 +53,6 @@ class AudioPlayerActivity : AppCompatActivity() {
         genre.text = track.primaryGenreName
         country.text = track.country
         releaseDate.text = track.releaseDate.take(4)
-
-        viewModel = ViewModelProvider(
-            this,
-            Creator.provideAudioPlayerViewModelFactory()
-        )[AudioPlayerViewModel::class.java]
 
         viewModel.state.observe(this) { state ->
             btnPlay.isEnabled = state.isPlayButtonEnabled

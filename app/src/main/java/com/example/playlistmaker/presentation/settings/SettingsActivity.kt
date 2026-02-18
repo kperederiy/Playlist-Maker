@@ -9,17 +9,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
-import androidx.lifecycle.ViewModelProvider
-import com.example.playlistmaker.presentation.App
-import com.example.playlistmaker.Creator
 import com.example.playlistmaker.R
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textview.MaterialTextView
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SettingsActivity : AppCompatActivity() {
 
-    private lateinit var viewModel: SettingsViewModel
+    private val viewModel: SettingsViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -41,11 +39,6 @@ class SettingsActivity : AppCompatActivity() {
         toolbar.setNavigationOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
-
-        val settingsInteractor = Creator.provideSettingsInteractor(applicationContext)
-        val factory = SettingsViewModelFactory(settingsInteractor)
-
-        viewModel = ViewModelProvider(this, factory)[SettingsViewModel::class.java]
 
         val themeSwitch = findViewById<SwitchMaterial>(R.id.themeSwitch)
 
