@@ -7,9 +7,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.viewpager2.widget.ViewPager2
 import com.example.playlistmaker.R
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 
 class LibraryActivity : AppCompatActivity() {
+
+    private lateinit var viewPager: ViewPager2
+    private lateinit var tabLayout: TabLayout
+    private lateinit var tabMediator: TabLayoutMediator
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
 
@@ -25,5 +34,30 @@ class LibraryActivity : AppCompatActivity() {
             )
             insets
         }
+
+        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
+        toolbar.setNavigationOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
+
+        viewPager = findViewById(R.id.viewPager)
+        tabLayout = findViewById(R.id.tabLayout)
+
+        viewPager.adapter =
+            LibraryViewPagerAdapter(supportFragmentManager, lifecycle)
+
+        tabMediator = TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            when (position) {
+                0 -> tab.text = "Избранные треки"
+                1 -> tab.text = "Плейлисты"
+            }
+        }
+
+        tabMediator.attach()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        tabMediator.detach()
     }
 }
