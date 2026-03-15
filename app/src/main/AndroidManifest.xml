@@ -15,25 +15,14 @@
         android:theme="@style/Theme.PlaylistMaker"
         android:name="com.example.playlistmaker.presentation.App">
         <activity
-            android:name=".presentation.settings.SettingsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".presentation.search.SearchActivity"
-            android:exported="false" />
-        <activity
-            android:name=".presentation.player.AudioPlayerActivity"
-            android:exported="false" />
-        <activity
-            android:name=".presentation.library.LibraryActivity"
-            android:exported="false" />
-        <activity
-            android:name=".presentation.MainActivity"
+            android:name=".presentation.root.RootActivity"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+
         </activity>
     </application>
 
