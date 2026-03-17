@@ -5,14 +5,15 @@ import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.core.os.bundleOf
 import androidx.core.view.*
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.playlistmaker.R
 import com.example.playlistmaker.domain.model.Track
 import com.example.playlistmaker.presentation.adapter.TrackAdapter
-import com.example.playlistmaker.presentation.player.AudioPlayerFragment
 import com.google.android.material.appbar.MaterialToolbar
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -51,17 +52,6 @@ class SearchFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        val rootView = view.findViewById<View>(R.id.root)
-
-        ViewCompat.setOnApplyWindowInsetsListener(rootView) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.updatePadding(
-                top = systemBars.top,
-                bottom = systemBars.bottom
-            )
-            insets
-        }
-
         inputSearchText = view.findViewById(R.id.inputSearchText)
         btnClearSearch = view.findViewById(R.id.btnClearSearch)
         tracksRecyclerView = view.findViewById(R.id.Tracks)
@@ -90,7 +80,7 @@ class SearchFragment : Fragment() {
         val toolbar = view.findViewById<MaterialToolbar>(R.id.toolbar)
 
         toolbar.setNavigationOnClickListener {
-            parentFragmentManager.popBackStack()
+            findNavController().navigateUp()
         }
 
         viewModel.observeState().observe(viewLifecycleOwner) { state ->
@@ -166,16 +156,11 @@ class SearchFragment : Fragment() {
 
     private fun openPlayer(track: Track) {
 
-        parentFragmentManager.beginTransaction()
-            .replace(
-                R.id.rootFragmentContainerView,
-                AudioPlayerFragment.newInstance(track)
-            )
-            .addToBackStack(null)
-            .commit()
-    }
+        val bundle = bundleOf("track" to track)
 
-    companion object {
-        fun newInstance() = SearchFragment()
+        findNavController().navigate(
+            R.id.action_searchFragment_to_audioPlayerFragment,
+            bundle
+        )
     }
 }

@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.example.playlistmaker.R
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.switchmaterial.SwitchMaterial
@@ -38,7 +39,7 @@ class SettingsFragment : Fragment() {
         val buttonUserAgreement = view.findViewById<MaterialTextView>(R.id.user_agreement)
 
         toolbar.setNavigationOnClickListener {
-            parentFragmentManager.popBackStack()
+            findNavController().navigateUp()
         }
 
         viewModel.state.observe(viewLifecycleOwner) { state ->
@@ -103,9 +104,5 @@ class SettingsFragment : Fragment() {
         buttonUserAgreement.setOnClickListener {
             viewModel.onUserAgreementClicked()
         }
-    }
-
-    companion object {
-        fun newInstance() = SettingsFragment()
     }
 }

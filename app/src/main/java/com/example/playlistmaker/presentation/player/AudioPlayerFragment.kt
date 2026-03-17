@@ -4,10 +4,8 @@ import android.os.Bundle
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
 import com.example.playlistmaker.domain.model.Track
@@ -32,18 +30,7 @@ class AudioPlayerFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        val rootView = view.findViewById<View>(R.id.root)
-
-        ViewCompat.setOnApplyWindowInsetsListener(rootView) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.updatePadding(
-                top = systemBars.top,
-                bottom = systemBars.bottom
-            )
-            insets
-        }
-
-        val track = requireArguments().getSerializable(TRACK_KEY) as Track
+        val track = requireArguments().getSerializable("track") as Track
 
         val cover = view.findViewById<ImageView>(R.id.cover)
         val trackName = view.findViewById<TextView>(R.id.trackName)
@@ -117,20 +104,7 @@ class AudioPlayerFragment : Fragment() {
         val toolbar = view.findViewById<MaterialToolbar>(R.id.toolbar)
 
         toolbar.setNavigationOnClickListener {
-            parentFragmentManager.popBackStack()
-        }
-    }
-
-    companion object {
-
-        private const val TRACK_KEY = "track"
-
-        fun newInstance(track: Track): AudioPlayerFragment {
-            return AudioPlayerFragment().apply {
-                arguments = Bundle().apply {
-                    putSerializable(TRACK_KEY, track)
-                }
-            }
+            findNavController().navigateUp()
         }
     }
 }

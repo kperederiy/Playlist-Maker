@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.example.playlistmaker.R
 import com.google.android.material.appbar.MaterialToolbar
@@ -32,7 +33,7 @@ class LibraryFragment : Fragment() {
         val viewPager = view.findViewById<ViewPager2>(R.id.viewPager)
 
         toolbar.setNavigationOnClickListener {
-            parentFragmentManager.popBackStack()
+            findNavController().navigateUp()
         }
 
         val adapter = LibraryViewPagerAdapter(
@@ -43,16 +44,10 @@ class LibraryFragment : Fragment() {
         viewPager.adapter = adapter
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-
             when (position) {
                 0 -> tab.text = getString(R.string.tab_favourite_tracks)
                 1 -> tab.text = getString(R.string.tab_playlists)
             }
-
         }.attach()
-    }
-
-    companion object {
-        fun newInstance() = LibraryFragment()
     }
 }

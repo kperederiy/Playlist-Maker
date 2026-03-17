@@ -5,11 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.commit
+import androidx.navigation.fragment.findNavController
 import com.example.playlistmaker.R
-import com.example.playlistmaker.presentation.library.LibraryFragment
-import com.example.playlistmaker.presentation.search.SearchFragment
-import com.example.playlistmaker.presentation.settings.SettingsFragment
 import com.google.android.material.button.MaterialButton
 
 class MainFragment : Fragment() {
@@ -33,33 +30,21 @@ class MainFragment : Fragment() {
         val buttonSettings = view.findViewById<MaterialButton>(R.id.settings)
 
         buttonSearch.setOnClickListener {
-            parentFragmentManager.commit {
-                replace(
-                    R.id.rootFragmentContainerView,
-                    SearchFragment()
-                )
-                addToBackStack(null)
-            }
+            findNavController().navigate(
+                R.id.action_mainFragment_to_searchFragment
+            )
         }
 
         buttonLibrary.setOnClickListener {
-            parentFragmentManager.commit {
-                replace(
-                    R.id.rootFragmentContainerView,
-                    LibraryFragment()
-                )
-                addToBackStack(null)
-            }
+            findNavController().navigate(
+                R.id.action_mainFragment_to_libraryFragment
+            )
         }
 
         buttonSettings.setOnClickListener {
-            parentFragmentManager.commit {
-                replace(
-                    R.id.rootFragmentContainerView,
-                    SettingsFragment()
-                )
-                addToBackStack(null)
-            }
+            findNavController().navigate(
+                R.id.action_mainFragment_to_settingsFragment
+            )
         }
     }
 }
