@@ -3,27 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root_navigation_graph"
-    app:startDestination="@id/mainFragment">
-
-    <fragment
-        android:id="@+id/mainFragment"
-        android:name="com.example.playlistmaker.presentation.MainFragment"
-        android:label="main"
-        tools:layout="@layout/fragment_main">
-
-        <action
-            android:id="@+id/action_mainFragment_to_searchFragment"
-            app:destination="@id/searchFragment" />
-
-        <action
-            android:id="@+id/action_mainFragment_to_settingsFragment"
-            app:destination="@id/settingsFragment" />
-
-        <action
-            android:id="@+id/action_mainFragment_to_libraryFragment"
-            app:destination="@id/libraryFragment" />
-
-    </fragment>
+    app:startDestination="@id/searchFragment">
 
     <fragment
         android:id="@+id/searchFragment"

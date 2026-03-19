@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.playlistmaker.R
 import com.example.playlistmaker.domain.model.Track
 import com.example.playlistmaker.presentation.adapter.TrackAdapter
-import com.google.android.material.appbar.MaterialToolbar
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SearchFragment : Fragment() {
@@ -75,12 +74,6 @@ class SearchFragment : Fragment() {
         historyAdapter.onTrackClick = { track ->
             viewModel.onTrackClicked(track)
             openPlayer(track)
-        }
-
-        val toolbar = view.findViewById<MaterialToolbar>(R.id.toolbar)
-
-        toolbar.setNavigationOnClickListener {
-            findNavController().navigateUp()
         }
 
         viewModel.observeState().observe(viewLifecycleOwner) { state ->

@@ -7,13 +7,25 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupWithNavController
 import com.example.playlistmaker.R
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class RootActivity : AppCompatActivity(R.layout.activity_root) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+
+        val navHostFragment = supportFragmentManager
+            .findFragmentById(R.id.rootFragmentContainerView) as NavHostFragment
+
+        val navController = navHostFragment.navController
+
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+
+        bottomNavigationView.setupWithNavController(navController)
 
         val rootView = findViewById<View>(R.id.rootFragmentContainerView)
 

@@ -7,9 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import com.example.playlistmaker.R
-import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textview.MaterialTextView
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -32,15 +30,10 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        val toolbar = view.findViewById<MaterialToolbar>(R.id.toolbar)
         val themeSwitch = view.findViewById<SwitchMaterial>(R.id.themeSwitch)
         val buttonShare = view.findViewById<MaterialTextView>(R.id.share)
         val buttonSupport = view.findViewById<MaterialTextView>(R.id.support)
         val buttonUserAgreement = view.findViewById<MaterialTextView>(R.id.user_agreement)
-
-        toolbar.setNavigationOnClickListener {
-            findNavController().navigateUp()
-        }
 
         viewModel.state.observe(viewLifecycleOwner) { state ->
 
