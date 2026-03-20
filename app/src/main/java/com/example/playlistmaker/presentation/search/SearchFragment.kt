@@ -9,12 +9,13 @@ import androidx.core.os.bundleOf
 import androidx.core.view.*
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.playlistmaker.R
 import com.example.playlistmaker.domain.model.Track
 import com.example.playlistmaker.presentation.adapter.TrackAdapter
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class SearchFragment : Fragment() {
 
@@ -35,7 +36,7 @@ class SearchFragment : Fragment() {
 
     private var currentText: String = ""
 
-    private val viewModel: SearchViewModel by viewModel()
+    private val viewModel: SearchViewModel by activityViewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -135,25 +136,17 @@ class SearchFragment : Fragment() {
         historyAdapter.updateItems(state.history)
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString("search_text", currentText)
-    }
-
-    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-        super.onViewStateRestored(savedInstanceState)
-
-        val restoredText = savedInstanceState?.getString("search_text", "")
-        inputSearchText.setText(restoredText)
-    }
-
     private fun openPlayer(track: Track) {
 
         val bundle = bundleOf("track" to track)
 
         findNavController().navigate(
             R.id.action_searchFragment_to_audioPlayerFragment,
-            bundle
+            bundle,
+            NavOptions.Builder()
+                .setLaunchSingleTop(true)
+                .setRestoreState(true)
+                .build()
         )
     }
 }
