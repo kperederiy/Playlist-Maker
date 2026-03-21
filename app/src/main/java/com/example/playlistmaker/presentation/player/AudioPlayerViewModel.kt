@@ -85,6 +85,6 @@ class AudioPlayerViewModel(
     }
 
     override fun onCleared() {
-        interactor.release()
+        interactor.reset()
     }
 }

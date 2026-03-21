@@ -24,6 +24,10 @@ class AudioPlayerRepositoryImpl(
         mediaPlayer.release()
     }
 
+    override fun reset() {
+        mediaPlayer.reset()
+    }
+
     override fun getCurrentPosition(): Int {
         return mediaPlayer.currentPosition
     }
