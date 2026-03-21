@@ -17,7 +17,7 @@ val dataModule = module {
     // SharedPreferences
     single {
         androidContext()
-            .getSharedPreferences("playlist_maker_prefs", Context.MODE_PRIVATE)
+            .getSharedPreferences("settings", Context.MODE_PRIVATE)
     }
 
     // Gson
