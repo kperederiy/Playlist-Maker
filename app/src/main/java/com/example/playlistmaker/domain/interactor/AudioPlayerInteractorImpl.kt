@@ -21,6 +21,9 @@ class AudioPlayerInteractorImpl(
     override fun release() {
         repository.release()
     }
+    override fun reset() {
+        repository.reset()
+    }
 
     override fun getCurrentPosition(): Int {
         return repository.getCurrentPosition()

@@ -1,31 +1,24 @@
 package com.example.playlistmaker.presentation.search
 
-import android.content.Intent
 import android.os.Bundle
-import android.view.View
+import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.getSystemService
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.isVisible
-import androidx.core.view.updatePadding
+import android.widget.*
+import androidx.core.os.bundleOf
+import androidx.core.view.*
+import androidx.core.widget.doOnTextChanged
+import androidx.fragment.app.Fragment
+import androidx.navigation.NavOptions
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.playlistmaker.R
 import com.example.playlistmaker.domain.model.Track
 import com.example.playlistmaker.presentation.adapter.TrackAdapter
-import com.example.playlistmaker.presentation.player.AudioPlayerActivity
-import com.google.android.material.appbar.MaterialToolbar
-import androidx.core.widget.doOnTextChanged
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
-class SearchActivity : AppCompatActivity() {
+class SearchFragment : Fragment() {
+
     private lateinit var inputSearchText: EditText
     private lateinit var btnClearSearch: ImageView
     private lateinit var tracksRecyclerView: RecyclerView
@@ -43,57 +36,49 @@ class SearchActivity : AppCompatActivity() {
 
     private var currentText: String = ""
 
-    private val viewModel: SearchViewModel by viewModel()
+    private val viewModel: SearchViewModel by activityViewModel()
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        return inflater.inflate(
+            R.layout.fragment_search,
+            container,
+            false
+        )
+    }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_search)
+        inputSearchText = view.findViewById(R.id.inputSearchText)
+        btnClearSearch = view.findViewById(R.id.btnClearSearch)
+        tracksRecyclerView = view.findViewById(R.id.Tracks)
+        emptyState = view.findViewById(R.id.emptyState)
+        errorState = view.findViewById(R.id.errorState)
+        btnRetry = view.findViewById(R.id.btnRetry)
+        progressBar = view.findViewById(R.id.progressBar)
 
-        val rootView = findViewById<View>(R.id.root)
-        ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.updatePadding(
-                top = systemBars.top,
-                bottom = systemBars.bottom
-            )
-            insets
-        }
-
-        inputSearchText = findViewById(R.id.inputSearchText)
-        btnClearSearch = findViewById(R.id.btnClearSearch)
-        tracksRecyclerView = findViewById(R.id.Tracks)
-        emptyState = findViewById(R.id.emptyState)
-        errorState = findViewById(R.id.errorState)
-        btnRetry = findViewById(R.id.btnRetry)
-        progressBar = findViewById(R.id.progressBar)
-
-        viewModel.observeState().observe(this) { state ->
-            render(state)
-        }
+        historyTitle = view.findViewById(R.id.historyTitle)
+        historyRecyclerView = view.findViewById(R.id.historyRecyclerView)
+        btnClearHistory = view.findViewById(R.id.btnClearHistory)
 
         tracksRecyclerView.adapter = tracksAdapter
+        historyRecyclerView.adapter = historyAdapter
+
         tracksAdapter.onTrackClick = { track ->
             viewModel.onTrackClicked(track)
             openPlayer(track)
         }
 
-
-        historyTitle = findViewById(R.id.historyTitle)
-        historyRecyclerView = findViewById(R.id.historyRecyclerView)
-        btnClearHistory = findViewById(R.id.btnClearHistory)
-
-        historyRecyclerView.adapter = historyAdapter
         historyAdapter.onTrackClick = { track ->
             viewModel.onTrackClicked(track)
             openPlayer(track)
         }
 
-        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
-        toolbar.setNavigationOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
+        viewModel.observeState().observe(viewLifecycleOwner) { state ->
+            render(state)
         }
 
         inputSearchText.setOnFocusChangeListener { _, hasFocus ->
@@ -108,9 +93,12 @@ class SearchActivity : AppCompatActivity() {
         }
 
         inputSearchText.setOnEditorActionListener { _, actionId, _ ->
+
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                val imm = getSystemService<InputMethodManager>()
+
+                val imm = requireContext().getSystemService(InputMethodManager::class.java)
                 imm?.hideSoftInputFromWindow(inputSearchText.windowToken, 0)
+
                 true
             } else {
                 false
@@ -131,6 +119,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun render(state: SearchState) {
+
         progressBar.isVisible = state.isLoading
         errorState.isVisible = state.isError
         emptyState.isVisible = state.isEmpty
@@ -147,26 +136,17 @@ class SearchActivity : AppCompatActivity() {
         historyAdapter.updateItems(state.history)
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString("search_text", currentText)
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        val restoredText = savedInstanceState.getString("search_text", "")
-        inputSearchText.setText(restoredText)
-    }
-
     private fun openPlayer(track: Track) {
-        val intent = Intent(this, AudioPlayerActivity::class.java)
-        intent.putExtra("track", track)
-        startActivity(intent)
-    }
 
-    override fun onDestroy() {
-        super.onDestroy()
+        val bundle = bundleOf("track" to track)
+
+        findNavController().navigate(
+            R.id.action_searchFragment_to_audioPlayerFragment,
+            bundle,
+            NavOptions.Builder()
+                .setLaunchSingleTop(true)
+                .setRestoreState(true)
+                .build()
+        )
     }
 }
-
-

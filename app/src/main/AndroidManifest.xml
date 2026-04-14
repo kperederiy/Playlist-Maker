@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET"/>
 
@@ -15,25 +14,15 @@
         android:theme="@style/Theme.PlaylistMaker"
         android:name="com.example.playlistmaker.presentation.App">
         <activity
-            android:name=".presentation.settings.SettingsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".presentation.search.SearchActivity"
-            android:exported="false" />
-        <activity
-            android:name=".presentation.player.AudioPlayerActivity"
-            android:exported="false" />
-        <activity
-            android:name=".presentation.library.LibraryActivity"
-            android:exported="false" />
-        <activity
-            android:name=".presentation.MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:name=".presentation.root.RootActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustPan">
 
-                <category android:name="android.intent.category.LAUNCHER" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+
         </activity>
     </application>
 

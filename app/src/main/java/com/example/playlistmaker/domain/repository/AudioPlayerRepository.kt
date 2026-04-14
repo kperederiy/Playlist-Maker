@@ -5,6 +5,7 @@ interface AudioPlayerRepository {
     fun play()
     fun pause()
     fun release()
+    fun reset()
     fun getCurrentPosition(): Int
     fun setOnPreparedListener(listener: () -> Unit)
     fun setOnCompletionListener(listener: () -> Unit)

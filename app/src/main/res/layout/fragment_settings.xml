@@ -13,8 +13,6 @@
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         android:elevation="0dp"
-        app:navigationIcon="@drawable/ic_arrow_back_24"
-        app:navigationIconTint="?attr/colorOnSecondary"
         app:title="@string/settings"
         app:titleTextAppearance="@style/ToolbarTitleTextAppearance"
         app:titleTextColor="?attr/colorOnSecondary"
