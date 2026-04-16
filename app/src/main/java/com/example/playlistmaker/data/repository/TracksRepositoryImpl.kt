@@ -1,5 +1,6 @@
 package com.example.playlistmaker.data.repository
 
+import android.util.Log
 import com.example.playlistmaker.data.network.ITunesApi
 import com.example.playlistmaker.domain.Resource
 import com.example.playlistmaker.domain.model.Track
@@ -32,13 +33,15 @@ class TracksRepositoryImpl(
                 releaseDate = dto.releaseDate?.take(4) ?: "",
                 primaryGenreName = dto.primaryGenreName,
                 country = dto.country,
-                previewUrl = dto.previewUrl
+                previewUrl = dto.previewUrl.orEmpty()
             )
         }
 
         emit(Resource.Success(tracks))
 
     }.catch { throwable ->
+        Log.e("SEARCH_ERROR", throwable.message ?: "error")
+        Log.e("SEARCH_ERROR", throwable::class.java.name)
         emit(Resource.Error(throwable))
     }
 }
