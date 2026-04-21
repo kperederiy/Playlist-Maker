@@ -1,13 +1,15 @@
 package com.example.playlistmaker.presentation.search
 
-import android.os.Handler
-import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.playlistmaker.domain.Resource
 import com.example.playlistmaker.domain.interactor.SearchHistoryInteractor
 import com.example.playlistmaker.domain.interactor.SearchInteractor
 import com.example.playlistmaker.domain.model.Track
+import debounce
+import kotlinx.coroutines.launch
 
 class SearchViewModel(
     private val searchInteractor: SearchInteractor,
@@ -17,16 +19,26 @@ class SearchViewModel(
     private val stateLiveData = MutableLiveData(SearchState())
     fun observeState(): LiveData<SearchState> = stateLiveData
 
-    private var isClickAllowed = true
-    private val handler = Handler(Looper.getMainLooper())
-    private var searchRunnable: Runnable? = null
+    private val searchDebounce = debounce<String>(
+        delayMillis = 2000L,
+        coroutineScope = viewModelScope,
+        useLastParam = true
+    ) { query ->
+        search(query)
+    }
+
+    private val clickDebounce = debounce<Track>(
+        delayMillis = 1000L,
+        coroutineScope = viewModelScope,
+        useLastParam = false
+    ) { track ->
+        historyInteractor.saveTrack(track)
+    }
 
     private var lastQuery: String = ""
 
     fun onSearchTextChanged(text: String) {
         lastQuery = text
-
-        searchRunnable?.let { handler.removeCallbacks(it) }
 
         val currentState = stateLiveData.value ?: SearchState()
 
@@ -50,53 +62,61 @@ class SearchViewModel(
             showHistory = false
         )
 
-        searchRunnable = Runnable {
-            search(text)
-        }
-
-        handler.postDelayed(searchRunnable!!, 2000L)
+        searchDebounce(text)
     }
 
     private fun search(query: String) {
-        val currentState = stateLiveData.value ?: SearchState()
 
-        stateLiveData.value = currentState.copy(
-            isLoading = true,
-            isError = false,
-            isEmpty = false,
-            showHistory = false
-        )
+        viewModelScope.launch {
+            searchInteractor.searchTracks(query)
+                .collect { resource ->
 
-        searchInteractor.searchTracks(
-            query = query,
-            onResult = { tracks ->
-                if (tracks.isEmpty()) {
-                    stateLiveData.postValue(
-                        stateLiveData.value?.copy(
-                            isLoading = false,
-                            isEmpty = true,
-                            tracks = emptyList()
-                        )
-                    )
-                } else {
-                    stateLiveData.postValue(
-                        stateLiveData.value?.copy(
-                            isLoading = false,
-                            tracks = tracks,
-                            isEmpty = false
-                        )
-                    )
+                    when (resource) {
+
+                        is Resource.Loading -> {
+                            stateLiveData.postValue(
+                                stateLiveData.value?.copy(
+                                    isLoading = true,
+                                    isError = false,
+                                    isEmpty = false,
+                                    showHistory = false
+                                )
+                            )
+                        }
+
+                        is Resource.Success -> {
+                            val tracks = resource.data
+
+                            if (tracks.isEmpty()) {
+                                stateLiveData.postValue(
+                                    stateLiveData.value?.copy(
+                                        isLoading = false,
+                                        isEmpty = true,
+                                        tracks = emptyList()
+                                    )
+                                )
+                            } else {
+                                stateLiveData.postValue(
+                                    stateLiveData.value?.copy(
+                                        isLoading = false,
+                                        tracks = tracks,
+                                        isEmpty = false
+                                    )
+                                )
+                            }
+                        }
+
+                        is Resource.Error -> {
+                            stateLiveData.postValue(
+                                stateLiveData.value?.copy(
+                                    isLoading = false,
+                                    isError = true
+                                )
+                            )
+                        }
+                    }
                 }
-            },
-            onError = {
-                stateLiveData.postValue(
-                    stateLiveData.value?.copy(
-                        isLoading = false,
-                        isError = true
-                    )
-                )
-            }
-        )
+        }
     }
 
     fun onSearchFieldFocused() {
@@ -119,15 +139,7 @@ class SearchViewModel(
     }
 
     fun onTrackClicked(track: Track): Boolean {
-        if (!isClickAllowed) return false
-
-        isClickAllowed = false
-        handler.postDelayed(
-            { isClickAllowed = true },
-            1000L
-        )
-
-        historyInteractor.saveTrack(track)
+        clickDebounce(track)
         return true
     }
 
@@ -148,6 +160,5 @@ class SearchViewModel(
 
     override fun onCleared() {
         super.onCleared()
-        handler.removeCallbacksAndMessages(null)
     }
 }

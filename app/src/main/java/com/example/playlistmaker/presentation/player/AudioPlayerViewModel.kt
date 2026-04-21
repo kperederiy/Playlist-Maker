@@ -1,11 +1,13 @@
 package com.example.playlistmaker.presentation.player
 
-import android.os.Handler
-import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.domain.interactor.AudioPlayerInteractor
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class AudioPlayerViewModel(
     private val interactor: AudioPlayerInteractor
@@ -22,7 +24,7 @@ class AudioPlayerViewModel(
 
 
     private var isPlaying = false
-    private val handler = Handler(Looper.getMainLooper())
+    private var timerJob: Job? = null
 
     fun prepare(url: String) {
         interactor.preparePlayer(url)
@@ -39,8 +41,14 @@ class AudioPlayerViewModel(
 
         interactor.setOnCompletionListener {
             isPlaying = false
+            timerJob?.cancel()
+
             _state.postValue(
-                AudioPlayerState(true, false, "00:00")
+                AudioPlayerState(
+                    isPlayButtonEnabled = true,
+                    isPlaying = false,
+                    currentTime = "00:00"
+                )
             )
         }
     }
@@ -56,26 +64,35 @@ class AudioPlayerViewModel(
     private fun play() {
         interactor.play()
         isPlaying = true
-        updateTime()
+
         _state.postValue(_state.value?.copy(isPlaying = true))
+
+        startTimer()
     }
 
     private fun pause() {
         interactor.pause()
         isPlaying = false
+
+        timerJob?.cancel()
+
         _state.postValue(_state.value?.copy(isPlaying = false))
     }
 
-    private fun updateTime() {
-        handler.postDelayed(object : Runnable {
-            override fun run() {
-                if (isPlaying) {
-                    val time = formatTime(interactor.getCurrentPosition())
-                    _state.postValue(_state.value?.copy(currentTime = time))
-                    handler.postDelayed(this, 300)
-                }
+    private fun startTimer() {
+        timerJob?.cancel()
+
+        timerJob = viewModelScope.launch {
+            while (isPlaying) {
+                delay(300L)
+
+                val time = formatTime(interactor.getCurrentPosition())
+
+                _state.postValue(
+                    _state.value?.copy(currentTime = time)
+                )
             }
-        }, 300)
+        }
     }
 
     private fun formatTime(millis: Int): String {
@@ -85,6 +102,8 @@ class AudioPlayerViewModel(
     }
 
     override fun onCleared() {
+        super.onCleared()
+        timerJob?.cancel()
         interactor.reset()
     }
 }

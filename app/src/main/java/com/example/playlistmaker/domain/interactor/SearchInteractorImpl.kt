@@ -1,30 +1,21 @@
 package com.example.playlistmaker.domain.interactor
 
+import com.example.playlistmaker.domain.Resource
 import com.example.playlistmaker.domain.model.Track
 import com.example.playlistmaker.domain.repository.TracksRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 class SearchInteractorImpl(
     private val tracksRepository: TracksRepository
 ) : SearchInteractor {
 
-    override fun searchTracks(
-        query: String,
-        onResult: (List<Track>) -> Unit,
-        onError: () -> Unit
-    ) {
+    override fun searchTracks(query: String): Flow<Resource<List<Track>>> {
+
         if (query.isBlank()) {
-            onResult(emptyList())
-            return
+            return flowOf(Resource.Success(emptyList()))
         }
 
-        tracksRepository.searchTracks(
-            query = query,
-            onSuccess = { tracks ->
-                onResult(tracks)
-            },
-            onError = {
-                onError()
-            }
-        )
+        return tracksRepository.searchTracks(query)
     }
 }
