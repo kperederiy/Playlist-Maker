@@ -24,4 +24,8 @@ class FavoriteTracksInteractorImpl(
                 tracks.reversed() // новые сверху
             }
     }
+
+    override suspend fun getFavoriteTrackIds(): List<Int> {
+        return repository.getFavoriteTrackIds()
+    }
 }

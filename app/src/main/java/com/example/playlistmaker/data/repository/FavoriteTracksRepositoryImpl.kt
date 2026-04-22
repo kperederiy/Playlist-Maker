@@ -25,6 +25,10 @@ class FavoriteTracksRepositoryImpl(
             .map { list -> list.map { it.toDomain() } }
     }
 
+    override suspend fun getFavoriteTrackIds(): List<Int> {
+        return database.favoriteTrackDao().getAllTrackIds()
+    }
+
     // 🔽 Маппинг Track → Entity
     private fun Track.toEntity(): FavoriteTrackEntity {
         return FavoriteTrackEntity(
