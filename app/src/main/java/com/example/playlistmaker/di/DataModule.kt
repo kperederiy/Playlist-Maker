@@ -2,6 +2,8 @@ package com.example.playlistmaker.di
 
 import android.content.Context
 import android.media.MediaPlayer
+import androidx.room.Room
+import com.example.playlistmaker.data.db.AppDatabase
 import com.example.playlistmaker.data.network.ITunesApi
 import com.example.playlistmaker.data.repository.ThemeManager
 import com.example.playlistmaker.data.storage.SearchHistoryStorage
@@ -56,5 +58,17 @@ val dataModule = module {
     // MediaPlayer
     factory {
         MediaPlayer()
+    }
+
+    single<AppDatabase> {
+        Room.databaseBuilder(
+            get<Context>(),
+            AppDatabase::class.java,
+            "playlist_database"
+        ).build()
+    }
+
+    single {
+        get<AppDatabase>().favoriteTrackDao()
     }
 }
