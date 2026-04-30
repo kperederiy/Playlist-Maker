@@ -5,6 +5,7 @@ import com.example.playlistmaker.data.db.FavoriteTrackEntity
 import com.example.playlistmaker.domain.model.Track
 import com.example.playlistmaker.domain.repository.FavoriteTracksRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
 class FavoriteTracksRepositoryImpl(
@@ -22,6 +23,7 @@ class FavoriteTracksRepositoryImpl(
     override fun getAllTracks(): Flow<List<Track>> {
         return dao.getAllTracks()
             .map { list -> list.map { it.toDomain() } }
+            .distinctUntilChanged()
     }
 
     override suspend fun getFavoriteTrackIds(): List<Int> {
