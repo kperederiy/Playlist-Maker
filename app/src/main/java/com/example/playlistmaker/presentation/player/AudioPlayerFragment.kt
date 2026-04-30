@@ -89,18 +89,6 @@ class AudioPlayerFragment : Fragment() {
         }
 
         val btnLike = view.findViewById<ImageView>(R.id.btnLike)
-
-//        var isLiked = false
-//        btnLike.setOnClickListener {
-//
-//            isLiked = !isLiked
-//
-//            if (isLiked) {
-//                btnLike.setImageResource(R.drawable.ic_del_favorite_51)
-//            } else {
-//                btnLike.setImageResource(R.drawable.ic_add_favorite_51)
-//            }
-//        }
         viewModel.setTrack(track)
         viewModel.isFavorite.observe(viewLifecycleOwner) { isFavorite ->
             btnLike.setImageResource(
