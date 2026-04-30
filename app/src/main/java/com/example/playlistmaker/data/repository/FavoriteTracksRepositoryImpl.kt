@@ -1,6 +1,6 @@
 package com.example.playlistmaker.data.repository
 
-import com.example.playlistmaker.data.db.AppDatabase
+import com.example.playlistmaker.data.db.FavoriteTrackDao
 import com.example.playlistmaker.data.db.FavoriteTrackEntity
 import com.example.playlistmaker.domain.model.Track
 import com.example.playlistmaker.domain.repository.FavoriteTracksRepository
@@ -8,25 +8,24 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class FavoriteTracksRepositoryImpl(
-    private val database: AppDatabase
+    private val dao: FavoriteTrackDao
 ) : FavoriteTracksRepository {
 
     override suspend fun addTrack(track: Track) {
-        database.favoriteTrackDao().insertTrack(track.toEntity())
+        dao.insertTrack(track.toEntity())
     }
 
     override suspend fun removeTrack(track: Track) {
-        database.favoriteTrackDao().deleteTrack(track.toEntity())
+        dao.deleteTrack(track.toEntity())
     }
 
     override fun getAllTracks(): Flow<List<Track>> {
-        return database.favoriteTrackDao()
-            .getAllTracks()
+        return dao.getAllTracks()
             .map { list -> list.map { it.toDomain() } }
     }
 
     override suspend fun getFavoriteTrackIds(): List<Int> {
-        return database.favoriteTrackDao().getAllTrackIds()
+        return dao.getAllTrackIds()
     }
 
     // 🔽 Маппинг Track → Entity
