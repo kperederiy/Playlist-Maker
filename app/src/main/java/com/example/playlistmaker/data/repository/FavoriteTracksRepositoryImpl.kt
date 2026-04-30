@@ -41,7 +41,8 @@ class FavoriteTracksRepositoryImpl(
             primaryGenreName = primaryGenreName,
             country = country,
             trackTimeMillis = trackTime,
-            previewUrl = previewUrl
+            previewUrl = previewUrl,
+            addedAt = System.currentTimeMillis()
         )
     }
 
