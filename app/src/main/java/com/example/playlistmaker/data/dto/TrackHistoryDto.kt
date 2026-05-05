@@ -6,7 +6,7 @@ data class TrackHistoryDto(
     val artistName: String,
     val trackTime: String,
     val artworkUrl100: String,
-    val collectionName: String,
+    val collectionName: String?,
     val releaseDate: String,
     val primaryGenreName: String,
     val country: String,

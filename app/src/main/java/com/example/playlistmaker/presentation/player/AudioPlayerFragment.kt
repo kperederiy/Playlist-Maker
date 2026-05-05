@@ -31,7 +31,7 @@ class AudioPlayerFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        val track = requireArguments().getSerializable("track") as Track
+        val track = arguments?.getParcelable<Track>("track") ?: return
 
         val cover = view.findViewById<ImageView>(R.id.cover)
         val trackName = view.findViewById<TextView>(R.id.trackName)
@@ -89,17 +89,17 @@ class AudioPlayerFragment : Fragment() {
         }
 
         val btnLike = view.findViewById<ImageView>(R.id.btnLike)
-
-        var isLiked = false
+        viewModel.setTrack(track)
+        viewModel.isFavorite.observe(viewLifecycleOwner) { isFavorite ->
+            btnLike.setImageResource(
+                if (isFavorite)
+                    R.drawable.ic_del_favorite_51
+                else
+                    R.drawable.ic_add_favorite_51
+            )
+        }
         btnLike.setOnClickListener {
-
-            isLiked = !isLiked
-
-            if (isLiked) {
-                btnLike.setImageResource(R.drawable.ic_del_favorite_51)
-            } else {
-                btnLike.setImageResource(R.drawable.ic_add_favorite_51)
-            }
+            viewModel.onFavoriteClicked()
         }
 
         val toolbar = view.findViewById<MaterialToolbar>(R.id.toolbar)
