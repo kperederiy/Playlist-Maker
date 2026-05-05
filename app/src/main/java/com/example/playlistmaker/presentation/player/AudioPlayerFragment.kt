@@ -31,7 +31,7 @@ class AudioPlayerFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        val track = requireArguments().getSerializable("track") as Track
+        val track = arguments?.getParcelable<Track>("track") ?: return
 
         val cover = view.findViewById<ImageView>(R.id.cover)
         val trackName = view.findViewById<TextView>(R.id.trackName)

@@ -61,7 +61,7 @@ class FavoriteTracksFragment : Fragment() {
 
     private fun onTrackClick(track: Track) {
         val bundle = Bundle().apply {
-            putSerializable("track", track)
+            putParcelable("track", track)
         }
 
         findNavController().navigate(
