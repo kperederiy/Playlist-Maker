@@ -30,6 +30,10 @@ class FavoriteTracksRepositoryImpl(
         return dao.getAllTrackIds()
     }
 
+    override suspend fun isTrackFavorite(trackId: Int): Boolean {
+        return dao.isTrackFavorite(trackId)
+    }
+
     // 🔽 Маппинг Track → Entity
     private fun Track.toEntity(): FavoriteTrackEntity {
         return FavoriteTrackEntity(

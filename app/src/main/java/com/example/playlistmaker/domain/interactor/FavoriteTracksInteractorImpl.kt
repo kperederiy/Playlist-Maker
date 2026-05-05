@@ -23,4 +23,8 @@ class FavoriteTracksInteractorImpl(
     override suspend fun getFavoriteTrackIds(): List<Int> {
         return repository.getFavoriteTrackIds()
     }
+
+    override suspend fun isFavorite(trackId: Int): Boolean {
+        return repository.isTrackFavorite(trackId)
+    }
 }

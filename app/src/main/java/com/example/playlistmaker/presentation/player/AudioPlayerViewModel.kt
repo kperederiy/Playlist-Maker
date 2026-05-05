@@ -117,9 +117,7 @@ class AudioPlayerViewModel(
         currentTrack = track
 
         viewModelScope.launch {
-            val favoriteIds = favoriteTracksInteractor.getFavoriteTrackIds()
-
-            val isFav = favoriteIds.contains(track.trackId)
+            val isFav = favoriteTracksInteractor.isFavorite(track.trackId)
 
             track.isFavorite = isFav
             _isFavorite.postValue(isFav)
@@ -136,8 +134,10 @@ class AudioPlayerViewModel(
                 favoriteTracksInteractor.addTrack(track)
             }
 
-            track.isFavorite = !track.isFavorite
-            _isFavorite.postValue(track.isFavorite)
+            val isFav = favoriteTracksInteractor.isFavorite(track.trackId)
+
+            track.isFavorite = isFav
+            _isFavorite.postValue(isFav)
         }
     }
 }
