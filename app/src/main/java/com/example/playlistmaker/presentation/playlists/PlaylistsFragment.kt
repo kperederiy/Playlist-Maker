@@ -1,12 +1,13 @@
-package com.example.playlistmaker.presentation.library
+package com.example.playlistmaker.presentation.playlists
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import androidx.navigation.fragment.findNavController
 import com.example.playlistmaker.databinding.FragmentPlaylistsBinding
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class PlaylistsFragment : Fragment() {
 
@@ -22,6 +23,16 @@ class PlaylistsFragment : Fragment() {
     ): View {
         _binding = FragmentPlaylistsBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.newPlaylist.setOnClickListener {
+            findNavController().navigate(
+                com.example.playlistmaker.R.id.action_libraryFragment_to_newPlaylistFragment
+            )
+        }
     }
 
     override fun onDestroyView() {

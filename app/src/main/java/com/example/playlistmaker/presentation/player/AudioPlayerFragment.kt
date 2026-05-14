@@ -108,15 +108,5 @@ class AudioPlayerFragment : Fragment() {
             findNavController().navigateUp()
         }
     }
-
-    override fun onResume() {
-        super.onResume()
-        requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView).visibility = View.GONE
-    }
-
-    override fun onPause() {
-        super.onPause()
-        requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView).visibility = View.VISIBLE
-    }
 }
 fun Track.getCoverArtwork() = artworkUrl100.replaceAfterLast('/', "512x512bb.jpg")

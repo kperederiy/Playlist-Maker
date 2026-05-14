@@ -27,6 +27,22 @@ class RootActivity : AppCompatActivity(R.layout.activity_root) {
 
         bottomNavigationView.setupWithNavController(navController)
 
+        // Скрытие bottom navigation
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+
+            when (destination.id) {
+
+                R.id.audioPlayerFragment,
+                R.id.newPlaylistFragment -> {
+                    bottomNavigationView.visibility = View.GONE
+                }
+
+                else -> {
+                    bottomNavigationView.visibility = View.VISIBLE
+                }
+            }
+        }
+
         val rootView = findViewById<View>(R.id.rootFragmentContainerView)
 
         ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, insets ->
