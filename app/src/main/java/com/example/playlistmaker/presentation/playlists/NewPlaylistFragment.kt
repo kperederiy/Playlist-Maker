@@ -17,8 +17,11 @@ import java.io.File
 import java.io.FileOutputStream
 import androidx.activity.addCallback
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class NewPlaylistFragment : Fragment() {
+
+    private val viewModel: NewPlaylistViewModel by viewModel()
 
     private var _binding: FragmentNewPlaylistBinding? = null
     private val binding get() = _binding!!
@@ -122,13 +125,23 @@ class NewPlaylistFragment : Fragment() {
 
         binding.createButton.setOnClickListener {
 
-            val playlistName = binding.nameEditText.text.toString().trim()
+            val playlistName =
+                binding.nameEditText.text.toString().trim()
 
             if (playlistName.isEmpty()) return@setOnClickListener
 
+            val description =
+                binding.descriptionEditText.text.toString()
+
             val imagePath = coverUri?.let {
                 saveImageToPrivateStorage(it)
-            }
+            } ?: ""
+
+            viewModel.createPlaylist(
+                name = playlistName,
+                description = description,
+                coverPath = imagePath
+            )
 
             Toast.makeText(
                 requireContext(),
