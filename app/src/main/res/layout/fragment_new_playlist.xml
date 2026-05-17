@@ -14,7 +14,7 @@
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         app:navigationIcon="@drawable/ic_arrow_back_24"
-        app:title="Новый плейлист"
+        app:title="@string/new_playlist"
         app:titleCentered="false"
         app:titleTextColor="?attr/colorOnSecondary"
         app:layout_constraintTop_toTopOf="parent"/>
@@ -57,7 +57,7 @@
                 android:id="@+id/nameEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Название*"
+                android:hint="@string/name_new_playlist"
                 android:maxLines="1"/>
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -70,7 +70,7 @@
                 android:id="@+id/descriptionEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Описание"/>
+                android:hint="@string/description"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.button.MaterialButton
@@ -80,7 +80,7 @@
             android:layout_marginTop="24dp"
             android:layout_marginBottom="24dp"
             android:enabled="false"
-            android:text="Создать"/>
+            android:text="@string/create"/>
 
     </LinearLayout>
 

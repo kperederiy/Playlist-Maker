@@ -6,15 +6,35 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.domain.interactor.AudioPlayerInteractor
 import com.example.playlistmaker.domain.interactor.FavoriteTracksInteractor
+import com.example.playlistmaker.domain.interactor.PlaylistsInteractor
+import com.example.playlistmaker.domain.model.Playlist
 import com.example.playlistmaker.domain.model.Track
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class AudioPlayerViewModel(
     private val interactor: AudioPlayerInteractor,
-    private val favoriteTracksInteractor: FavoriteTracksInteractor
+    private val favoriteTracksInteractor: FavoriteTracksInteractor,
+    private val playlistsInteractor: PlaylistsInteractor
 ) : ViewModel() {
+
+    private val _playlists = MutableStateFlow<List<Playlist>>(emptyList())
+    val playlists = _playlists.asStateFlow()
+    init {
+
+        viewModelScope.launch {
+
+            playlistsInteractor
+                .getPlaylists()
+                .collect { playlists ->
+
+                    _playlists.value = playlists
+                }
+        }
+    }
 
     private val _state = MutableLiveData(
         AudioPlayerState(
