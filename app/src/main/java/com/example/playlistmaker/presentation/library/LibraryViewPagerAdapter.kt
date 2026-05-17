@@ -15,8 +15,8 @@ class LibraryViewPagerAdapter(
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
-            0 -> FavoriteTracksFragment.newInstance()
-            else -> PlaylistsFragment.newInstance()
+            0 -> FavoriteTracksFragment()
+            else -> PlaylistsFragment()
         }
     }
 }
