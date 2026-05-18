@@ -10,6 +10,8 @@ import com.example.playlistmaker.domain.model.Playlist
 class PlaylistBottomSheetAdapter :
     ListAdapter<Playlist, PlaylistBottomSheetViewHolder>(DiffCallback()) {
 
+    var onPlaylistClick: ((Playlist) -> Unit)? = null
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -28,7 +30,14 @@ class PlaylistBottomSheetAdapter :
         holder: PlaylistBottomSheetViewHolder,
         position: Int
     ) {
-        holder.bind(getItem(position))
+
+        val playlist = getItem(position)
+
+        holder.bind(playlist)
+
+        holder.itemView.setOnClickListener {
+            onPlaylistClick?.invoke(playlist)
+        }
     }
 
     class DiffCallback : DiffUtil.ItemCallback<Playlist>() {

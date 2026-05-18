@@ -5,6 +5,7 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -138,6 +139,39 @@ class AudioPlayerFragment : Fragment() {
             }
         )
         val playlistsAdapter = PlaylistBottomSheetAdapter()
+        playlistsAdapter.onPlaylistClick = { playlist ->
+
+            viewModel.addTrackToPlaylist(
+                track,
+                playlist
+            )
+        }
+        viewModel.addTrackState.observe(viewLifecycleOwner) { state ->
+
+            when(state) {
+
+                is AddTrackState.Success -> {
+
+                    bottomSheetBehavior.state =
+                        BottomSheetBehavior.STATE_HIDDEN
+
+                    Toast.makeText(
+                        requireContext(),
+                        "Добавлено в плейлист ${state.playlistName}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                is AddTrackState.AlreadyExists -> {
+
+                    Toast.makeText(
+                        requireContext(),
+                        "Трек уже добавлен в плейлист ${state.playlistName}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
 
         val recycler =
             view.findViewById<RecyclerView>(R.id.playlistsRecyclerView)
@@ -146,11 +180,6 @@ class AudioPlayerFragment : Fragment() {
 
         recycler.layoutManager =
             LinearLayoutManager(requireContext())
-
-//        viewModel.playlists.observe(viewLifecycleOwner) { playlists ->
-//
-//            playlistsAdapter.updateItems(playlists)
-//        }
 
         val btnPlaylist = view.findViewById<ImageView>(R.id.btnPlaylist)
 //        var isInPlaylist = false

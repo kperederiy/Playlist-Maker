@@ -1,33 +1,40 @@
 package com.example.playlistmaker.data.repository
 
 import com.example.playlistmaker.data.db.PlaylistDao
+import com.example.playlistmaker.data.db.PlaylistDbConverter
 import com.example.playlistmaker.data.db.PlaylistEntity
+import com.example.playlistmaker.data.db.PlaylistTrackDao
+import com.example.playlistmaker.data.db.PlaylistTrackDbConverter
 import com.example.playlistmaker.domain.model.Playlist
+import com.example.playlistmaker.domain.model.Track
 import com.example.playlistmaker.domain.repository.PlaylistsRepository
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class PlaylistsRepositoryImpl(
-    private val dao: PlaylistDao,
-    private val gson: Gson
+    private val playlistDao: PlaylistDao,
+    private val gson: Gson,
+    private val playlistTrackDao: PlaylistTrackDao,
+    private val playlistDbConverter: PlaylistDbConverter,
+    private val playlistTrackDbConverter: PlaylistTrackDbConverter
 ) : PlaylistsRepository {
 
     override suspend fun createPlaylist(playlist: Playlist) {
-        dao.insertPlaylist(playlist.toEntity())
+        playlistDao.insertPlaylist(playlist.toEntity())
     }
 
     override suspend fun updatePlaylist(playlist: Playlist) {
-        dao.updatePlaylist(playlist.toEntity())
+        playlistDao.updatePlaylist(playlist.toEntity())
     }
 
     override suspend fun deletePlaylist(playlist: Playlist) {
-        dao.deletePlaylist(playlist.toEntity())
+        playlistDao.deletePlaylist(playlist.toEntity())
     }
 
     override fun getPlaylists(): Flow<List<Playlist>> {
 
-        return dao.getPlaylists()
+        return playlistDao.getPlaylists()
             .map { list ->
                 list.map { entity ->
                     entity.toDomain()
@@ -37,7 +44,7 @@ class PlaylistsRepositoryImpl(
 
     override suspend fun getPlaylist(playlistId: Long): Playlist? {
 
-        return dao.getPlaylistById(playlistId)
+        return playlistDao.getPlaylistById(playlistId)
             ?.toDomain()
     }
 
@@ -65,6 +72,28 @@ class PlaylistsRepositoryImpl(
                 Array<Int>::class.java
             ).toList(),
             tracksCount = tracksCount
+        )
+    }
+
+    override suspend fun addTrackToPlaylist(
+        track: Track,
+        playlist: Playlist
+    ) {
+
+        val updatedTrackIds = playlist.trackIds.toMutableList()
+        updatedTrackIds.add(track.trackId)
+
+        val updatedPlaylist = playlist.copy(
+            trackIds = updatedTrackIds,
+            tracksCount = playlist.tracksCount + 1
+        )
+
+        playlistDao.updatePlaylist(
+            playlistDbConverter.map(updatedPlaylist)
+        )
+
+        playlistTrackDao.insertTrack(
+            playlistTrackDbConverter.map(track)
         )
     }
 }

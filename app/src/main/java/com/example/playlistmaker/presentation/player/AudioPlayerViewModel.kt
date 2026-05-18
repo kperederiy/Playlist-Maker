@@ -48,6 +48,11 @@ class AudioPlayerViewModel(
     private val _isFavorite = MutableLiveData<Boolean>()
     val isFavorite: LiveData<Boolean> = _isFavorite
 
+    private val _addTrackState =
+        MutableLiveData<AddTrackState>()
+
+    val addTrackState: LiveData<AddTrackState> =
+        _addTrackState
 
     private var isPlaying = false
     private var timerJob: Job? = null
@@ -158,6 +163,36 @@ class AudioPlayerViewModel(
 
             track.isFavorite = isFav
             _isFavorite.postValue(isFav)
+        }
+    }
+
+    fun addTrackToPlaylist(
+        track: Track,
+        playlist: Playlist
+    ) {
+
+        if (playlist.trackIds.contains(track.trackId)) {
+
+            _addTrackState.value =
+                AddTrackState.AlreadyExists(
+                    playlist.name
+                )
+
+            return
+        }
+
+        viewModelScope.launch {
+
+            playlistsInteractor.addTrackToPlaylist(
+                track,
+                playlist
+            )
+
+            _addTrackState.postValue(
+                AddTrackState.Success(
+                    playlist.name
+                )
+            )
         }
     }
 }
