@@ -25,13 +25,17 @@
             android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/ys_display_regular"
+            android:textColor="?attr/colorOnPrimary"
             android:textSize="16sp"/>
 
         <TextView
             android:id="@+id/count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="12sp"/>
+            android:fontFamily="@font/ys_display_regular"
+            android:textColor="@color/gray"
+            android:textSize="11sp"/>
     </LinearLayout>
 
 </LinearLayout>

@@ -3,7 +3,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorPrimary">
@@ -42,8 +41,8 @@
                 android:id="@+id/cover"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="@drawable/bg_playlist_placeholder"
                 android:scaleType="centerCrop"
-                android:src="@drawable/placeholder_playlist"
                 app:shapeAppearanceOverlay="@style/RoundedImage8dp"/>
 
         </FrameLayout>
@@ -51,10 +50,12 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp">
+            android:layout_marginTop="32dp"
+            style="@style/PlaylistTextInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/nameEditText"
+                style="@style/PlaylistEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/name_new_playlist"
@@ -64,10 +65,12 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp">
+            android:layout_marginTop="16dp"
+            style="@style/PlaylistTextInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/descriptionEditText"
+                style="@style/PlaylistEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/description"/>
@@ -75,10 +78,11 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/createButton"
+            style="@style/CreatePlaylistButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="24dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="32dp"
             android:enabled="false"
             android:text="@string/create"/>
 

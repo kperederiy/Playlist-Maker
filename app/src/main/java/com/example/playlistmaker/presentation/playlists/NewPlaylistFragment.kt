@@ -1,5 +1,6 @@
 package com.example.playlistmaker.presentation.playlists
 
+import android.app.AlertDialog
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -16,6 +17,7 @@ import com.example.playlistmaker.databinding.FragmentNewPlaylistBinding
 import java.io.File
 import java.io.FileOutputStream
 import androidx.activity.addCallback
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -92,7 +94,7 @@ class NewPlaylistFragment : Fragment() {
 
     private fun showExitDialog() {
 
-        MaterialAlertDialogBuilder(requireContext())
+        val dialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle("Завершить создание плейлиста?")
             .setMessage("Все несохраненные данные будут потеряны")
 
@@ -105,6 +107,22 @@ class NewPlaylistFragment : Fragment() {
             }
 
             .show()
+
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+            .setTextColor(
+                MaterialColors.getColor(
+                    requireView(),
+                    com.google.android.material.R.attr.colorOnSecondary
+                )
+            )
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            .setTextColor(
+                MaterialColors.getColor(
+                    requireView(),
+                    com.google.android.material.R.attr.colorOnSecondary
+                )
+            )
     }
 
     private fun initCoverPicker() {
