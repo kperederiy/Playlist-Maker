@@ -31,23 +31,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar">
 
-        <FrameLayout
-            android:id="@+id/coverContainer"
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/cover"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
+
+            android:background="@drawable/bg_playlist_placeholder"
             android:foreground="?attr/selectableItemBackground"
-            app:layout_constraintDimensionRatio="1:1">
 
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/cover"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_playlist_placeholder"
-                android:scaleType="centerCrop"
-                app:shapeAppearanceOverlay="@style/RoundedImage8dp" />
+            android:scaleType="centerCrop"
 
-        </FrameLayout>
+            app:shapeAppearanceOverlay="@style/RoundedImage8dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
             style="@style/PlaylistTextInputLayout"

@@ -126,9 +126,11 @@ class NewPlaylistFragment : Fragment() {
     }
 
     private fun initCoverPicker() {
-        binding.coverContainer.setOnClickListener {
+        binding.cover.setOnClickListener {
             pickMedia.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                PickVisualMediaRequest(
+                    ActivityResultContracts.PickVisualMedia.ImageOnly
+                )
             )
         }
     }
