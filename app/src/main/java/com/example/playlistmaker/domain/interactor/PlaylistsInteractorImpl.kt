@@ -35,4 +35,11 @@ class PlaylistsInteractorImpl(
     ) {
         repository.addTrackToPlaylist(track, playlist)
     }
+
+    override fun getTracks(
+        trackIds: List<Int>
+    ): Flow<List<Track>> {
+
+        return repository.getTracks(trackIds)
+    }
 }

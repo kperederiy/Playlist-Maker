@@ -50,7 +50,17 @@
             android:id="@+id/action_libraryFragment_to_newPlaylistFragment"
             app:destination="@id/newPlaylistFragment" />
 
+        <action
+            android:id="@+id/action_libraryFragment_to_playlistFragment"
+            app:destination="@id/playlistFragment"/>
+
     </fragment>
+
+    <fragment
+        android:id="@+id/playlistFragment"
+        android:name="com.example.playlistmaker.presentation.playlists.PlaylistFragment"
+        android:label="playlist"
+        tools:layout="@layout/fragment_playlist"/>
 
     <fragment
         android:id="@+id/newPlaylistFragment"
