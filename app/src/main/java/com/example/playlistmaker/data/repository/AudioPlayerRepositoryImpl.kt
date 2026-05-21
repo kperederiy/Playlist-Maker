@@ -8,6 +8,7 @@ class AudioPlayerRepositoryImpl(
 ) : AudioPlayerRepository {
 
     override fun prepare(url: String) {
+        mediaPlayer.reset()
         mediaPlayer.setDataSource(url)
         mediaPlayer.prepareAsync()
     }

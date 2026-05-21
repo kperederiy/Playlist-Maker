@@ -4,6 +4,8 @@ import android.content.Context
 import android.media.MediaPlayer
 import androidx.room.Room
 import com.example.playlistmaker.data.db.AppDatabase
+import com.example.playlistmaker.data.db.PlaylistDbConverter
+import com.example.playlistmaker.data.db.PlaylistTrackDbConverter
 import com.example.playlistmaker.data.network.ITunesApi
 import com.example.playlistmaker.data.repository.ThemeManager
 import com.example.playlistmaker.data.storage.SearchHistoryStorage
@@ -70,5 +72,17 @@ val dataModule = module {
 
     single {
         get<AppDatabase>().favoriteTrackDao()
+    }
+    single {
+        get<AppDatabase>().playlistDao()
+    }
+    single {
+        PlaylistDbConverter()
+    }
+    single {
+        PlaylistTrackDbConverter()
+    }
+    single {
+        get<AppDatabase>().playlistTrackDao()
     }
 }

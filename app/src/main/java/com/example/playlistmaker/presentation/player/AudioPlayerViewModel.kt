@@ -6,15 +6,35 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.domain.interactor.AudioPlayerInteractor
 import com.example.playlistmaker.domain.interactor.FavoriteTracksInteractor
+import com.example.playlistmaker.domain.interactor.PlaylistsInteractor
+import com.example.playlistmaker.domain.model.Playlist
 import com.example.playlistmaker.domain.model.Track
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class AudioPlayerViewModel(
     private val interactor: AudioPlayerInteractor,
-    private val favoriteTracksInteractor: FavoriteTracksInteractor
+    private val favoriteTracksInteractor: FavoriteTracksInteractor,
+    private val playlistsInteractor: PlaylistsInteractor
 ) : ViewModel() {
+
+    private val _playlists = MutableStateFlow<List<Playlist>>(emptyList())
+    val playlists = _playlists.asStateFlow()
+    init {
+
+        viewModelScope.launch {
+
+            playlistsInteractor
+                .getPlaylists()
+                .collect { playlists ->
+
+                    _playlists.value = playlists
+                }
+        }
+    }
 
     private val _state = MutableLiveData(
         AudioPlayerState(
@@ -28,6 +48,11 @@ class AudioPlayerViewModel(
     private val _isFavorite = MutableLiveData<Boolean>()
     val isFavorite: LiveData<Boolean> = _isFavorite
 
+    private val _addTrackState =
+        MutableLiveData<AddTrackState>()
+
+    val addTrackState: LiveData<AddTrackState> =
+        _addTrackState
 
     private var isPlaying = false
     private var timerJob: Job? = null
@@ -138,6 +163,36 @@ class AudioPlayerViewModel(
 
             track.isFavorite = isFav
             _isFavorite.postValue(isFav)
+        }
+    }
+
+    fun addTrackToPlaylist(
+        track: Track,
+        playlist: Playlist
+    ) {
+
+        if (playlist.trackIds.contains(track.trackId)) {
+
+            _addTrackState.value =
+                AddTrackState.AlreadyExists(
+                    playlist.name
+                )
+
+            return
+        }
+
+        viewModelScope.launch {
+
+            playlistsInteractor.addTrackToPlaylist(
+                track,
+                playlist
+            )
+
+            _addTrackState.postValue(
+                AddTrackState.Success(
+                    playlist.name
+                )
+            )
         }
     }
 }
