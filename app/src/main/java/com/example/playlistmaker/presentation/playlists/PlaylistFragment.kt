@@ -1,5 +1,6 @@
 package com.example.playlistmaker.presentation.playlists
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,7 +14,9 @@ import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentPlaylistBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.playlistmaker.domain.model.Track
 import com.example.playlistmaker.presentation.adapter.TrackAdapter
+import com.google.android.material.color.MaterialColors
 
 class PlaylistFragment : Fragment() {
 
@@ -95,12 +98,53 @@ class PlaylistFragment : Fragment() {
             )
         }
 
+        tracksAdapter.onTrackLongClick = { track ->
+
+            showDeleteDialog(track)
+        }
+
         binding.tracksRecyclerView.apply {
 
             layoutManager = LinearLayoutManager(requireContext())
 
             adapter = tracksAdapter
         }
+    }
+
+    private fun showDeleteDialog(track: Track) {
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setMessage("Хотите удалить трек?")
+
+            .setNegativeButton("НЕТ") { dialog, _ ->
+
+                dialog.dismiss()
+            }
+
+            .setPositiveButton("ДА") { dialog, _ ->
+
+                dialog.dismiss()
+
+                viewModel.removeTrack(track)
+            }
+
+            .show()
+
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                .setTextColor(
+                    MaterialColors.getColor(
+                        requireView(),
+                        com.google.android.material.R.attr.colorOnSecondary
+                    )
+                )
+
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                .setTextColor(
+                    MaterialColors.getColor(
+                        requireView(),
+                        com.google.android.material.R.attr.colorOnSecondary
+                    )
+                )
     }
 
     private fun observeViewModel() {

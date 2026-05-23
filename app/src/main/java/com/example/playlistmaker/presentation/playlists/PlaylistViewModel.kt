@@ -70,4 +70,20 @@ class PlaylistViewModel(
 
         _duration.value = totalMinutes.toString()
     }
+
+    fun removeTrack(track: Track) {
+
+        viewModelScope.launch {
+
+            val playlist = _playlist.value
+                ?: return@launch
+
+            playlistsInteractor.removeTrackFromPlaylist(
+                track,
+                playlist
+            )
+
+            loadPlaylist(playlist.id)
+        }
+    }
 }

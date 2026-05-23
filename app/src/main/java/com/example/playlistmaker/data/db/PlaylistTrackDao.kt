@@ -17,4 +17,10 @@ interface PlaylistTrackDao {
         WHERE trackId IN (:trackIds)
     """)
     fun getTracksByIds(trackIds: List<Int>): Flow<List<PlaylistTrackEntity>>
+
+    @Query("""
+    DELETE FROM playlist_tracks
+    WHERE trackId = :trackId
+""")
+    suspend fun deleteTrack(trackId: Int)
 }

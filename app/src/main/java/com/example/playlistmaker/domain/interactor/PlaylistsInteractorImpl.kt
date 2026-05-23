@@ -42,4 +42,15 @@ class PlaylistsInteractorImpl(
 
         return repository.getTracks(trackIds)
     }
+
+    override suspend fun removeTrackFromPlaylist(
+        track: Track,
+        playlist: Playlist
+    ) {
+
+        repository.removeTrackFromPlaylist(
+            track,
+            playlist
+        )
+    }
 }

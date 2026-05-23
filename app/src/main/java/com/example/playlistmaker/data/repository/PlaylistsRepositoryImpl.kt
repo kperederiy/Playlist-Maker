@@ -10,6 +10,7 @@ import com.example.playlistmaker.domain.model.Track
 import com.example.playlistmaker.domain.repository.PlaylistsRepository
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 class PlaylistsRepositoryImpl(
@@ -120,5 +121,52 @@ class PlaylistsRepositoryImpl(
                     )
                 }
             }
+    }
+
+    override suspend fun removeTrackFromPlaylist(
+        track: Track,
+        playlist: Playlist
+    ) {
+
+        val updatedTrackIds =
+            playlist.trackIds.toMutableList()
+
+        updatedTrackIds.remove(track.trackId)
+
+        val updatedPlaylist = playlist.copy(
+            trackIds = updatedTrackIds,
+            tracksCount = playlist.tracksCount - 1
+        )
+
+        playlistDao.updatePlaylist(
+            playlistDbConverter.map(updatedPlaylist)
+        )
+
+        deleteTrackIfUnused(track.trackId)
+    }
+
+    private suspend fun deleteTrackIfUnused(
+        trackId: Int
+    ) {
+
+        val playlists =
+            playlistDao.getPlaylists().first()
+
+        val isTrackUsed =
+            playlists.any { playlistEntity ->
+
+                val trackIds =
+                    gson.fromJson(
+                        playlistEntity.trackIds,
+                        Array<Int>::class.java
+                    ).toList()
+
+                trackId in trackIds
+            }
+
+        if (!isTrackUsed) {
+
+            playlistTrackDao.deleteTrack(trackId)
+        }
     }
 }
