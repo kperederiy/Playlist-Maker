@@ -12,6 +12,8 @@ import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentPlaylistBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.playlistmaker.presentation.adapter.TrackAdapter
 
 class PlaylistFragment : Fragment() {
 
@@ -21,6 +23,9 @@ class PlaylistFragment : Fragment() {
     private val binding get() = _binding!!
 
     private var playlistId: Long = 0L
+
+    private val tracksAdapter =
+        TrackAdapter(mutableListOf())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,11 +57,13 @@ class PlaylistFragment : Fragment() {
 
         initToolbar()
         initBackPressed()
+        initRecycler()
 
         viewModel.loadPlaylist(playlistId)
 
         observeViewModel()
         observeDuration()
+        observeTracks()
     }
 
     private fun initToolbar() {
@@ -73,6 +80,26 @@ class PlaylistFragment : Fragment() {
         ) {
 
             findNavController().navigateUp()
+        }
+    }
+
+    private fun initRecycler() {
+
+        tracksAdapter.onTrackClick = { track ->
+
+            findNavController().navigate(
+                R.id.action_playlistFragment_to_audioPlayerFragment,
+                Bundle().apply {
+                    putParcelable("track", track)
+                }
+            )
+        }
+
+        binding.tracksRecyclerView.apply {
+
+            layoutManager = LinearLayoutManager(requireContext())
+
+            adapter = tracksAdapter
         }
     }
 
@@ -135,6 +162,17 @@ class PlaylistFragment : Fragment() {
                         minutes,
                         minutes
                     )
+            }
+        }
+    }
+
+    private fun observeTracks() {
+
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+
+            viewModel.tracks.collect { tracks ->
+
+                tracksAdapter.updateItems(tracks)
             }
         }
     }

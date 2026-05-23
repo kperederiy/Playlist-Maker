@@ -54,28 +54,6 @@ class PlaylistViewModel(
         }
     }
 
-//    private fun calculateDuration(tracks: List<Track>) {
-//
-//        val durationSum = tracks.sumOf { track ->
-//
-//            track.trackTime
-//                .split(":")
-//                .let { time ->
-//
-//                    val minutes = time[0].toInt()
-//                    val seconds = time[1].toInt()
-//
-//                    (minutes * 60 + seconds) * 1000L
-//                }
-//        }
-//
-//        val minutes = SimpleDateFormat(
-//            "mm",
-//            Locale.getDefault()
-//        ).format(durationSum)
-//
-//        _duration.value = "$minutes мин"
-//    }
     private fun calculateDuration(tracks: List<Track>) {
 
         val totalSeconds = tracks.sumOf { track ->
