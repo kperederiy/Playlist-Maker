@@ -66,12 +66,22 @@
             android:id="@+id/action_playlistFragment_to_audioPlayerFragment"
             app:destination="@id/audioPlayerFragment" />
 
+        <action
+            android:id="@+id/action_playlistFragment_to_editPlaylistFragment"
+            app:destination="@id/editPlaylistFragment"/>
+
     </fragment>
 
     <fragment
         android:id="@+id/newPlaylistFragment"
         android:name="com.example.playlistmaker.presentation.playlists.NewPlaylistFragment"
         android:label="new_playlist"
+        tools:layout="@layout/fragment_new_playlist" />
+
+    <fragment
+        android:id="@+id/editPlaylistFragment"
+        android:name="com.example.playlistmaker.presentation.playlists.EditPlaylistFragment"
+        android:label="edit_playlist"
         tools:layout="@layout/fragment_new_playlist" />
 
 </navigation>

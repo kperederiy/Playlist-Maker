@@ -6,11 +6,11 @@ import com.example.playlistmaker.domain.interactor.PlaylistsInteractor
 import com.example.playlistmaker.domain.model.Playlist
 import kotlinx.coroutines.launch
 
-class NewPlaylistViewModel(
+open class NewPlaylistViewModel(
     private val playlistsInteractor: PlaylistsInteractor
 ) : ViewModel() {
 
-    fun createPlaylist(
+    open fun createPlaylist(
         name: String,
         description: String,
         coverPath: String

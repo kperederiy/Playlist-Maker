@@ -377,6 +377,26 @@ class PlaylistFragment : Fragment() {
             processShareClick()
         }
 
+        binding.editMenuItem.setOnClickListener {
+
+            bottomSheetBehavior.state =
+                BottomSheetBehavior.STATE_HIDDEN
+
+            val playlist =
+                viewModel.playlist.value
+                    ?: return@setOnClickListener
+
+            findNavController().navigate(
+                R.id.action_playlistFragment_to_editPlaylistFragment,
+                Bundle().apply {
+                    putParcelable(
+                        "playlist",
+                        playlist
+                    )
+                }
+            )
+        }
+
         binding.deleteMenuItem.setOnClickListener {
 
             bottomSheetBehavior.state =

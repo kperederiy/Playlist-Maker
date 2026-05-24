@@ -21,14 +21,15 @@ import com.google.android.material.color.MaterialColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class NewPlaylistFragment : Fragment() {
+open class NewPlaylistFragment : Fragment() {
 
-    private val viewModel: NewPlaylistViewModel by viewModel()
+    protected open val viewModel:
+            NewPlaylistViewModel by viewModel()
 
     private var _binding: FragmentNewPlaylistBinding? = null
-    private val binding get() = _binding!!
+    protected val binding get() = _binding!!
 
-    private var coverUri: Uri? = null
+    protected var coverUri: Uri? = null
 
     private val pickMedia =
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
@@ -73,7 +74,7 @@ class NewPlaylistFragment : Fragment() {
         }
     }
 
-    private fun handleBackAction() {
+    protected open fun handleBackAction() {
 
         if (hasUnsavedChanges()) {
 
@@ -145,35 +146,40 @@ class NewPlaylistFragment : Fragment() {
 
         binding.createButton.setOnClickListener {
 
-            val playlistName =
-                binding.nameEditText.text.toString().trim()
-
-            if (playlistName.isEmpty()) return@setOnClickListener
-
-            val description =
-                binding.descriptionEditText.text.toString()
-
-            val imagePath = coverUri?.let {
-                saveImageToPrivateStorage(it)
-            } ?: ""
-
-            viewModel.createPlaylist(
-                name = playlistName,
-                description = description,
-                coverPath = imagePath
-            )
-
-            Toast.makeText(
-                requireContext(),
-                "Плейлист $playlistName создан",
-                Toast.LENGTH_SHORT
-            ).show()
-
-            findNavController().navigateUp()
+            createPlaylist()
         }
     }
 
-    private fun saveImageToPrivateStorage(uri: Uri): String {
+    protected open fun createPlaylist() {
+
+        val playlistName =
+            binding.nameEditText.text.toString().trim()
+
+        if (playlistName.isEmpty()) return
+
+        val description =
+            binding.descriptionEditText.text.toString()
+
+        val imagePath = coverUri?.let {
+            saveImageToPrivateStorage(it)
+        } ?: ""
+
+        viewModel.createPlaylist(
+            name = playlistName,
+            description = description,
+            coverPath = imagePath
+        )
+
+        Toast.makeText(
+            requireContext(),
+            "Плейлист $playlistName создан",
+            Toast.LENGTH_SHORT
+        ).show()
+
+        findNavController().navigateUp()
+    }
+
+    protected fun saveImageToPrivateStorage(uri: Uri): String {
 
         val filePath = File(
             requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES),
