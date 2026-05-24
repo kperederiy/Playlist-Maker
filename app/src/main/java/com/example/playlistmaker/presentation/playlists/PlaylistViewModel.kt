@@ -86,4 +86,17 @@ class PlaylistViewModel(
             loadPlaylist(playlist.id)
         }
     }
+
+    fun deletePlaylist() {
+
+        val currentPlaylist =
+            _playlist.value ?: return
+
+        viewModelScope.launch {
+
+            playlistsInteractor.deletePlaylist(
+                currentPlaylist
+            )
+        }
+    }
 }

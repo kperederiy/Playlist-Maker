@@ -29,8 +29,20 @@ class PlaylistsRepositoryImpl(
         playlistDao.updatePlaylist(playlist.toEntity())
     }
 
-    override suspend fun deletePlaylist(playlist: Playlist) {
-        playlistDao.deletePlaylist(playlist.toEntity())
+    override suspend fun deletePlaylist(
+        playlist: Playlist
+    ) {
+
+        val trackIds = playlist.trackIds
+
+        playlistDao.deletePlaylist(
+            playlist.toEntity()
+        )
+
+        trackIds.forEach { trackId ->
+
+            deleteTrackIfUnused(trackId)
+        }
     }
 
     override fun getPlaylists(): Flow<List<Playlist>> {
@@ -150,7 +162,7 @@ class PlaylistsRepositoryImpl(
     ) {
 
         val playlists =
-            playlistDao.getPlaylists().first()
+            playlistDao.getPlaylistsList()
 
         val isTrackUsed =
             playlists.any { playlistEntity ->

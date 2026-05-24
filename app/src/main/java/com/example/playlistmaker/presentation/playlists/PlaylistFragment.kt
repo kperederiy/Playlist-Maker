@@ -234,20 +234,25 @@ class PlaylistFragment : Fragment() {
 
         binding.shareButton.setOnClickListener {
 
-            val tracks = viewModel.tracks.value
+            processShareClick()
+        }
+    }
 
-            if (tracks.isEmpty()) {
+    private fun processShareClick() {
 
-                Toast.makeText(
-                    requireContext(),
-                    "В этом плейлисте нет списка треков, которым можно поделиться",
-                    Toast.LENGTH_SHORT
-                ).show()
+        val tracks = viewModel.tracks.value
 
-            } else {
+        if (tracks.isEmpty()) {
 
-                sharePlaylist(tracks)
-            }
+            Toast.makeText(
+                requireContext(),
+                "В этом плейлисте нет списка треков, которым можно поделиться",
+                Toast.LENGTH_SHORT
+            ).show()
+
+        } else {
+
+            sharePlaylist(tracks)
         }
     }
 
@@ -363,6 +368,22 @@ class PlaylistFragment : Fragment() {
             bottomSheetBehavior.state =
                 BottomSheetBehavior.STATE_HIDDEN
         }
+
+        binding.shareMenuItem.setOnClickListener {
+
+            bottomSheetBehavior.state =
+                BottomSheetBehavior.STATE_HIDDEN
+
+            processShareClick()
+        }
+
+        binding.deleteMenuItem.setOnClickListener {
+
+            bottomSheetBehavior.state =
+                BottomSheetBehavior.STATE_HIDDEN
+
+            showDeletePlaylistDialog()
+        }
     }
 
     private fun fillBottomSheet() {
@@ -393,6 +414,54 @@ class PlaylistFragment : Fragment() {
             binding.bottomSheetCover
                 .setImageResource(R.drawable.placeholder)
         }
+    }
+
+    private fun showDeletePlaylistDialog() {
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setTitle("Удалить плейлист")
+            .setMessage("Хотите удалить плейлист?")
+
+            .setNegativeButton("Нет") { dialog, _ ->
+
+                dialog.dismiss()
+            }
+
+            .setPositiveButton("Да") { dialog, _ ->
+
+                dialog.dismiss()
+
+                deletePlaylist()
+            }
+
+            .show()
+
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+            .setTextColor(
+                MaterialColors.getColor(
+                    requireView(),
+                    com.google.android.material.R.attr.colorOnSecondary
+                )
+            )
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            .setTextColor(
+                MaterialColors.getColor(
+                    requireView(),
+                    com.google.android.material.R.attr.colorOnSecondary
+                )
+            )
+    }
+
+    private fun deletePlaylist() {
+
+        val playlist =
+            viewModel.playlist.value
+                ?: return
+
+        viewModel.deletePlaylist()
+
+        findNavController().navigateUp()
     }
 
     override fun onDestroyView() {
