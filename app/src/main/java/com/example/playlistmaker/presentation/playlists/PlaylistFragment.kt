@@ -139,21 +139,21 @@ class PlaylistFragment : Fragment() {
 
             .show()
 
-            dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
-                .setTextColor(
-                    MaterialColors.getColor(
-                        requireView(),
-                        com.google.android.material.R.attr.colorOnSecondary
-                    )
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+            .setTextColor(
+                MaterialColors.getColor(
+                    requireView(),
+                    com.google.android.material.R.attr.colorOnSecondary
                 )
+            )
 
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                .setTextColor(
-                    MaterialColors.getColor(
-                        requireView(),
-                        com.google.android.material.R.attr.colorOnSecondary
-                    )
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            .setTextColor(
+                MaterialColors.getColor(
+                    requireView(),
+                    com.google.android.material.R.attr.colorOnSecondary
                 )
+            )
     }
 
     private fun observeViewModel() {
@@ -474,10 +474,6 @@ class PlaylistFragment : Fragment() {
     }
 
     private fun deletePlaylist() {
-
-        val playlist =
-            viewModel.playlist.value
-                ?: return
 
         viewModel.deletePlaylist()
 
