@@ -8,4 +8,5 @@
     <dimen name="title_text_size">22sp</dimen>
     <dimen name="lists_text_size">16sp</dimen>
     <dimen name="icon_size">24dp</dimen>
+    <dimen name="playlist_bottom_sheet_peek_height">160dp</dimen>
 </resources>

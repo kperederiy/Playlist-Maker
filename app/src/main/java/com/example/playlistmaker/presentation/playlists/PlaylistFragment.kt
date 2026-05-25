@@ -31,6 +31,9 @@ class PlaylistFragment : Fragment() {
 
     private var playlistId: Long = 0L
 
+    private lateinit var tracksBottomSheetBehavior:
+            BottomSheetBehavior<LinearLayout>
+
     private lateinit var bottomSheetBehavior:
             BottomSheetBehavior<LinearLayout>
 
@@ -74,8 +77,29 @@ class PlaylistFragment : Fragment() {
         observeViewModel()
         observeDuration()
         observeTracks()
+        initTracksBottomSheet()
         initShareButton()
         initBottomSheet()
+    }
+
+    private fun initTracksBottomSheet() {
+
+        val tracksBottomSheet =
+            binding.tracksBottomSheet
+
+        tracksBottomSheetBehavior =
+            BottomSheetBehavior.from(tracksBottomSheet)
+
+        tracksBottomSheetBehavior.state =
+            BottomSheetBehavior.STATE_COLLAPSED
+
+        tracksBottomSheetBehavior.isHideable =
+            false
+
+        tracksBottomSheetBehavior.peekHeight =
+            resources.getDimensionPixelSize(
+                R.dimen.playlist_bottom_sheet_peek_height
+            )
     }
 
     private fun initToolbar() {
