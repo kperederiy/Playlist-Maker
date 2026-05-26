@@ -96,10 +96,20 @@ class PlaylistFragment : Fragment() {
         tracksBottomSheetBehavior.isHideable =
             false
 
-        tracksBottomSheetBehavior.peekHeight =
-            resources.getDimensionPixelSize(
-                R.dimen.playlist_bottom_sheet_peek_height
-            )
+        binding.actionsContainer.post {
+
+            val screenHeight =
+                resources.displayMetrics.heightPixels
+
+            val buttonsBottom =
+                binding.actionsContainer.bottom
+
+            val peekHeight =
+                screenHeight - buttonsBottom
+
+            tracksBottomSheetBehavior.peekHeight =
+                peekHeight
+        }
     }
 
     private fun initToolbar() {
