@@ -38,6 +38,7 @@
         android:drawableEnd="@drawable/ic_share_24"
         android:paddingVertical="16dp"
         android:paddingHorizontal="16dp"
+        app:drawableTint="?attr/colorPrimaryVariant"
         android:text="@string/share"
         android:gravity="center_vertical" />
 
@@ -49,6 +50,7 @@
         android:drawableEnd="@drawable/ic_support_24"
         android:paddingVertical="16dp"
         android:paddingHorizontal="16dp"
+        app:drawableTint="?attr/colorPrimaryVariant"
         android:text="@string/support"
         android:gravity="center_vertical" />
 
@@ -60,6 +62,7 @@
         android:drawableEnd="@drawable/ic_arrow_forward_24"
         android:paddingVertical="16dp"
         android:paddingHorizontal="16dp"
+        app:drawableTint="?attr/colorPrimaryVariant"
         android:text="@string/user_agreement"
         android:gravity="center_vertical" />
 

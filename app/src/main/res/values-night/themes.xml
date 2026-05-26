@@ -19,8 +19,8 @@
     </style>
 
     <style name="AppSwitchStyle" parent="Widget.MaterialComponents.CompoundButton.Switch">
-        <item name="thumbTint">@color/switch_thumb_color</item>
-        <item name="trackTint">@color/switch_track_color</item>
+        <item name="thumbTint">#3772E7</item>
+        <item name="trackTint">#9FBBF3</item>
     </style>
 
     <style name="AppProgressBarStyle" parent="Widget.AppCompat.ProgressBar">

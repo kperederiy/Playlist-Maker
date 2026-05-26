@@ -15,6 +15,7 @@ class TrackAdapter(
 ) : RecyclerView.Adapter<TrackHolder>() {
 
     var onTrackClick: ((Track) -> Unit)? = null
+    var onTrackLongClick: ((Track) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackHolder {
         val view = LayoutInflater.from(parent.context)
@@ -27,6 +28,13 @@ class TrackAdapter(
         holder.bind(track)
         holder.itemView.setOnClickListener {
             onTrackClick?.invoke(track)
+        }
+
+        holder.itemView.setOnLongClickListener {
+
+            onTrackLongClick?.invoke(track)
+
+            true
         }
     }
 
@@ -47,13 +55,21 @@ class TrackHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     private val artworkUrl100: ImageView = itemView.findViewById(R.id.artworkUrl100)
 
     fun bind(track: Track) {
+
         trackName.text = track.trackName
         artistName.text = track.artistName
         trackTime.text = track.trackTime
 
-        Glide.with(itemView.context)
-            .load(track.artworkUrl100)
-            .placeholder(R.drawable.placeholder)
-            .into(artworkUrl100)
+        if (track.artworkUrl100.isNotEmpty()) {
+
+            Glide.with(itemView.context)
+                .load(track.artworkUrl100)
+                .placeholder(R.drawable.placeholder)
+                .into(artworkUrl100)
+
+        } else {
+
+            artworkUrl100.setImageResource(R.drawable.placeholder)
+        }
     }
 }

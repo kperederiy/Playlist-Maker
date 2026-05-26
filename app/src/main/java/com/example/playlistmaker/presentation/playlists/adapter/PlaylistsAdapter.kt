@@ -7,8 +7,9 @@ import com.example.playlistmaker.databinding.ItemPlaylistBinding
 import com.example.playlistmaker.domain.model.Playlist
 import com.example.playlistmaker.presentation.playlists.adapter.PlaylistViewHolder
 
-class PlaylistsAdapter :
-    RecyclerView.Adapter<PlaylistViewHolder>() {
+class PlaylistsAdapter(
+    private val onClick: (Playlist) -> Unit
+) : RecyclerView.Adapter<PlaylistViewHolder>() {
 
     private val playlists = mutableListOf<Playlist>()
 
@@ -40,6 +41,10 @@ class PlaylistsAdapter :
     ) {
 
         holder.bind(playlists[position])
+
+        holder.itemView.setOnClickListener {
+            onClick(playlists[position])
+        }
     }
 
     override fun getItemCount(): Int {

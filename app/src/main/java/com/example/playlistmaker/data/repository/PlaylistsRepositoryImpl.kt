@@ -10,6 +10,7 @@ import com.example.playlistmaker.domain.model.Track
 import com.example.playlistmaker.domain.repository.PlaylistsRepository
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 class PlaylistsRepositoryImpl(
@@ -28,8 +29,20 @@ class PlaylistsRepositoryImpl(
         playlistDao.updatePlaylist(playlist.toEntity())
     }
 
-    override suspend fun deletePlaylist(playlist: Playlist) {
-        playlistDao.deletePlaylist(playlist.toEntity())
+    override suspend fun deletePlaylist(
+        playlist: Playlist
+    ) {
+
+        val trackIds = playlist.trackIds
+
+        playlistDao.deletePlaylist(
+            playlist.toEntity()
+        )
+
+        trackIds.forEach { trackId ->
+
+            deleteTrackIfUnused(trackId)
+        }
     }
 
     override fun getPlaylists(): Flow<List<Playlist>> {
@@ -95,5 +108,77 @@ class PlaylistsRepositoryImpl(
         playlistTrackDao.insertTrack(
             playlistTrackDbConverter.map(track)
         )
+    }
+
+    override fun getTracks(
+        trackIds: List<Int>
+    ): Flow<List<Track>> {
+
+        return playlistTrackDao.getTracksByIds(trackIds)
+            .map { tracks ->
+
+                tracks.map { entity ->
+
+                    Track(
+                        trackId = entity.trackId,
+                        trackName = entity.trackName,
+                        artistName = entity.artistName,
+                        trackTime = entity.trackTime,
+                        artworkUrl100 = entity.artworkUrl100,
+                        collectionName = entity.collectionName,
+                        releaseDate = entity.releaseDate,
+                        primaryGenreName = entity.primaryGenreName,
+                        country = entity.country,
+                        previewUrl = entity.previewUrl
+                    )
+                }
+            }
+    }
+
+    override suspend fun removeTrackFromPlaylist(
+        track: Track,
+        playlist: Playlist
+    ) {
+
+        val updatedTrackIds =
+            playlist.trackIds.toMutableList()
+
+        updatedTrackIds.remove(track.trackId)
+
+        val updatedPlaylist = playlist.copy(
+            trackIds = updatedTrackIds,
+            tracksCount = playlist.tracksCount - 1
+        )
+
+        playlistDao.updatePlaylist(
+            playlistDbConverter.map(updatedPlaylist)
+        )
+
+        deleteTrackIfUnused(track.trackId)
+    }
+
+    private suspend fun deleteTrackIfUnused(
+        trackId: Int
+    ) {
+
+        val playlists =
+            playlistDao.getPlaylistsList()
+
+        val isTrackUsed =
+            playlists.any { playlistEntity ->
+
+                val trackIds =
+                    gson.fromJson(
+                        playlistEntity.trackIds,
+                        Array<Int>::class.java
+                    ).toList()
+
+                trackId in trackIds
+            }
+
+        if (!isTrackUsed) {
+
+            playlistTrackDao.deleteTrack(trackId)
+        }
     }
 }
