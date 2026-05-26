@@ -34,7 +34,8 @@ class RootActivity : AppCompatActivity(R.layout.activity_root) {
 
                 R.id.audioPlayerFragment,
                 R.id.newPlaylistFragment,
-                R.id.playlistFragment -> {
+                R.id.playlistFragment,
+                R.id.editPlaylistFragment-> {
                     bottomNavigationView.visibility = View.GONE
                 }
 
